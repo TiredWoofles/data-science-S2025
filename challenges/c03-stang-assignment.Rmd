@@ -26,7 +26,7 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 <!-- ------------------------- -->
 
 | Category | Needs Improvement | Satisfactory |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | Effort | Some task **q**'s left unattempted | All task **q**'s attempted |
 | Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
 | Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
@@ -137,74 +137,74 @@ summary(df_stang_long)
 
 ```{r}
 ## TASK: Investigate your question from q1 here
-# df_avg <- df_stang_long %>%
-#   group_by(thick, angle) %>%
-#   summarise(avg_nu = mean(nu, na.rm = TRUE),
-#             sd_nu = sd(nu, na.rm = TRUE)
-#             ) %>%
-#   ungroup()
-# ggplot(df_avg, aes(x = factor(angle), y = avg_nu, color = factor(thick), group = thick)) +
-#   geom_line(size = 1) + 
-#   geom_point(size = 3) + 
+df_avg <- df_stang_long %>%
+  group_by(thick, angle) %>%
+  summarise(avg_nu = mean(nu, na.rm = TRUE),
+            sd_nu = sd(nu, na.rm = TRUE)
+            ) %>%
+  ungroup()
+ggplot(df_avg, aes(x = factor(angle), y = avg_nu, color = factor(thick), group = thick)) +
+  geom_line(size = 1) +
+  geom_point(size = 3) +
+# geom_errorbar(
+#  aes(ymin = avg_nu - sd_nu, ymax = avg_nu + sd_nu),
+#  width = 0.2,
+#  size = 0.8
+# )
+labs(
+  title = "Average Nu Value by Angle for Each Thickness",
+  x = "Angle (degrees)",
+  y = "Average Nu/ Poisson's Ratio",
+  color = "Thickness"
+) +
+theme_minimal()
+
+df_avg <- df_stang_long %>%
+  group_by(thick, angle) %>%
+  summarise(avg_nu = mean(nu, na.rm = TRUE),
+            sd_nu = sd(nu, na.rm = TRUE)
+            ) %>%
+  ungroup()
+ggplot(df_avg, aes(x = factor(angle), y = avg_nu, color = factor(thick), group = thick)) +
+  geom_line(size = 1) +
+  geom_point(size = 3) +
   #geom_errorbar(
   #  aes(ymin = avg_nu - sd_nu, ymax = avg_nu + sd_nu),
-  #  width = 0.2,  
-  #  size = 0.8    
+  #  width = 0.2,
+  #  size = 0.8
   #)
-  # labs(
-  #   title = "Average Nu Value by Angle for Each Thickness",
-  #   x = "Angle (degrees)",
-  #   y = "Average Nu/ Poisson's Ratio Value",
-  #   color = "Thickness"
-  # ) +
-  # theme_minimal()
-#   
-# df_avg <- df_stang_long %>%
-#   group_by(thick, angle) %>%
-#   summarise(avg_nu = mean(nu, na.rm = TRUE),
-#             sd_nu = sd(nu, na.rm = TRUE)
-#             ) %>%
-#   ungroup()
-# ggplot(df_avg, aes(x = factor(angle), y = avg_nu, color = factor(thick), group = thick)) +
-#   geom_line(size = 1) + 
-#   geom_point(size = 3) + 
-#   #geom_errorbar(
-#   #  aes(ymin = avg_nu - sd_nu, ymax = avg_nu + sd_nu),
-#   #  width = 0.2,  
-#   #  size = 0.8    
-#   #)
-#   labs(
-#     title = "Average Nu Value by Angle for Each Thickness",
-#     x = "Angle (degrees)",
-#     y = "Average Nu/ Poisson's Ratio Value",
-#     color = "Thickness"
-#   ) +
-#   ylim(0, max(df_avg$avg_nu, na.rm = TRUE)) +
-#   theme_minimal()
-# 
-# 
-# 
-# df_avg <- df_stang_long %>%
-#   group_by(thick, angle) %>%
-#   summarise(avg_nu = mean(nu, na.rm = TRUE),
-#             sd_nu = sd(nu, na.rm = TRUE)
-#             ) %>%
-#   ungroup()
-# ggplot(df_avg, aes(x = factor(angle), y = avg_nu, color = factor(thick), group = thick)) +
-#   geom_line(size = 1) + 
-#   geom_point(size = 3) + 
-#   #geom_errorbar(
-#   #  width = 0.2,  
-#   #  size = 0.8    
-#   #)
-#   labs(
-#     title = "Average Nu Value by Angle for Each Thickness",
-#     x = "Angle (degrees)",
-#     y = "Average Nu/ Poisson's Ratio Value",
-#     color = "Thickness"
-#   ) +
-#   ylim(0.31, 0.34) +
-#   theme_minimal()
+  labs(
+    title = "Average Nu Value by Angle for Each Thickness",
+    x = "Angle (degrees)",
+    y = "Average Nu/ Poisson's Ratio",
+    color = "Thickness"
+  ) +
+  ylim(0, max(df_avg$avg_nu, na.rm = TRUE)) +
+  theme_minimal()
+
+
+
+df_avg <- df_stang_long %>%
+  group_by(thick, angle) %>%
+  summarise(avg_nu = mean(nu, na.rm = TRUE),
+            sd_nu = sd(nu, na.rm = TRUE)
+            ) %>%
+  ungroup()
+ggplot(df_avg, aes(x = factor(angle), y = avg_nu, color = factor(thick), group = thick)) +
+  geom_line(size = 1) +
+  geom_point(size = 3) +
+  #geom_errorbar(
+  #  width = 0.2,
+  #  size = 0.8
+  #)
+  labs(
+    title = "Average Nu Value by Angle for Each Thickness",
+    x = "Angle (degrees)",
+    y = "Average Nu/ Poisson's Ratio",
+    color = "Thickness"
+  ) +
+  ylim(0.31, 0.34) +
+  theme_minimal()
 ```
 
 ```{r}
@@ -231,63 +231,63 @@ ggplot(df_avg, aes(x = factor(angle), y = avg_E, color = factor(thick), group = 
     color = "Thickness"
   ) +
   theme_minimal()
-# 
-# 
-# 
-# df_avg <- df_stang_long %>%
-#   group_by(thick, angle) %>%
-#   summarise(avg_E = mean(E, na.rm = TRUE),
-#             sd_E = sd(E, na.rm = TRUE)
-#             ) %>%
-#   ungroup()
-# max_avg_E <- df_avg %>%
-#   summarise(max_avg_E = max(avg_E, na.rm = TRUE)) %>%
-#   pull(max_avg_E)
-# ggplot(df_avg, aes(x = factor(angle), y = avg_E, color = factor(thick), group = thick)) +
-#   geom_line(size = 1) + 
-#   geom_point(size = 3) + 
-#   #geom_errorbar(
-#   #  aes(ymin = avg_E - sd_E, ymax = avg_E + sd_E),
-#   #  width = 0.2,  
-#   #  size = 0.8    
-#   #)
-#   labs(
-#     title = "Average E Value by Angle for Each Thickness",
-#     x = "Angle (degrees)",
-#     y = "Average E Value (ksi)",
-#     color = "Thickness"
-#   ) +
-#   ylim(0, max_avg_E) + 
-#   theme_minimal()
-# 
-# 
-# 
-# df_avg <- df_stang_long %>%
-#   group_by(thick, angle) %>%
-#   summarise(avg_E = mean(E, na.rm = TRUE),
-#             sd_E = sd(E, na.rm = TRUE)
-#             ) %>%
-#   ungroup()
-# max_avg_E <- df_avg %>%
-#   summarise(max_avg_E = max(avg_E, na.rm = TRUE)) %>%
-#   pull(max_avg_E)
-# ggplot(df_avg, aes(x = factor(angle), y = avg_E, color = factor(thick), group = thick)) +
-#   geom_line(size = 1) + 
-#   geom_point(size = 3) + 
-#   geom_errorbar(
-#    aes(ymin = avg_E - sd_E, ymax = avg_E + sd_E),
-#    width = 0.2,
-#    size = 0.8
-#   ) +
-#   labs(
-#     title = "Average E Value by Angle for Each Thickness",
-#     x = "Angle (degrees)",
-#     y = "Average E Value (ksi)",
-#     color = "Thickness"
-#   ) +
-#   # ylim(9800, 10600) +
-#   theme_minimal() +
-#   coord_cartesian(ylim = c(9800, 10600))
+
+
+
+df_avg <- df_stang_long %>%
+  group_by(thick, angle) %>%
+  summarise(avg_E = mean(E, na.rm = TRUE),
+            sd_E = sd(E, na.rm = TRUE)
+            ) %>%
+  ungroup()
+max_avg_E <- df_avg %>%
+  summarise(max_avg_E = max(avg_E, na.rm = TRUE)) %>%
+  pull(max_avg_E)
+ggplot(df_avg, aes(x = factor(angle), y = avg_E, color = factor(thick), group = thick)) +
+  geom_line(size = 1) +
+  geom_point(size = 3) +
+  #geom_errorbar(
+  #  aes(ymin = avg_E - sd_E, ymax = avg_E + sd_E),
+  #  width = 0.2,
+  #  size = 0.8
+  #)
+  labs(
+    title = "Average E Value by Angle for Each Thickness",
+    x = "Angle (degrees)",
+    y = "Average E Value (ksi)",
+    color = "Thickness"
+  ) +
+  ylim(0, max_avg_E) +
+  theme_minimal()
+
+
+
+df_avg <- df_stang_long %>%
+  group_by(thick, angle) %>%
+  summarise(avg_E = mean(E, na.rm = TRUE),
+            sd_E = sd(E, na.rm = TRUE)
+            ) %>%
+  ungroup()
+max_avg_E <- df_avg %>%
+  summarise(max_avg_E = max(avg_E, na.rm = TRUE)) %>%
+  pull(max_avg_E)
+ggplot(df_avg, aes(x = factor(angle), y = avg_E, color = factor(thick), group = thick)) +
+  geom_line(size = 1) +
+  geom_point(size = 3) +
+  # geom_errorbar(
+  #  aes(ymin = avg_E - sd_E, ymax = avg_E + sd_E),
+  #  width = 0.2,
+  #  size = 0.8
+  # ) +
+  labs(
+    title = "Average E Value by Angle for Each Thickness",
+    x = "Angle (degrees)",
+    y = "Average E Value (ksi)",
+    color = "Thickness"
+  ) +
+  # ylim(9800, 10600) +
+  theme_minimal() +
+  coord_cartesian(ylim = c(9862.57, 12835.84))
 ```
 
 **Observations**:
