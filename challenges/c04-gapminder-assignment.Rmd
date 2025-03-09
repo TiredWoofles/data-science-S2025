@@ -24,7 +24,7 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 <!-- ------------------------- -->
 
 | Category | Needs Improvement | Satisfactory |
-|------------------|-----------------------------|-------------------------|
+|----|----|----|
 | Effort | Some task **q**'s left unattempted | All task **q**'s attempted |
 | Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
 | Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
@@ -173,7 +173,7 @@ gapminder %>%
 
 *Hint*: We've learned a lot of different ways to show multiple variables; think about using different aesthetics or facets.
 
-```{r q4-task}
+```{r q4-task, fig.width=14}
 ## TASK: Create a visual of gdpPercap vs continent
 filtered_data <- gapminder %>%
   filter(year == year_min | year == year_max)
@@ -190,7 +190,7 @@ outliers_data <- filtered_data %>%
     data = outliers_data, 
     aes(color = country),
     size = 3,  # Make the outliers bigger
-     shape = 17,  # Shape 21 is a filled circle
+     shape = 17,  # Shape 17 is a filled circle
     fill = "green"  # Color of the points
   ) + 
   facet_wrap(~ year) +
