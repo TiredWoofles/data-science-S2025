@@ -203,9 +203,9 @@ melted_data <- df_antibiotics %>%
   pivot_longer(cols = c(penicillin, streptomycin, neomycin), names_to = "Antibiotic", values_to = "Sensitivity")
 
 # Heatmap plot
-ggplot(melted_data, aes(x = Antibiotic, y = bacteria, fill = Sensitivity)) +
+ggplot(melted_data, aes(x = Antibiotic, y = bacteria, fill = log10(Sensitivity))) +
   geom_tile() +
-  scale_fill_gradient(low = "green", high = "red", name = "Sensitivity Level") +
+  scale_fill_gradient(low = "blue", high = "green", name = "Sensitivity Level") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   labs(title = "Bacterial Sensitivity to Antibiotics", x = "Antibiotics", y = "Bacteria")
