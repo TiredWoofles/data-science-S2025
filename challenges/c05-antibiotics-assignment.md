@@ -1,7 +1,12 @@
-Antibiotics
-================
-(Suwanee Li)
-2025-03-06
+---
+editor_options: 
+  markdown: 
+    wrap: 72
+---
+
+# Antibiotics
+
+(Suwanee Li) 2025-03-06
 
 *Purpose*: Creating effective data visualizations is an *iterative*
 process; very rarely will the first graph you make be the most
@@ -36,7 +41,7 @@ define how you will be graded, both on an individual and team basis.
 <!-- ------------------------- -->
 
 | Category | Needs Improvement | Satisfactory |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Effort | Some task **q**’s left unattempted | All task **q**’s attempted |
 | Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
 | Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
@@ -57,22 +62,24 @@ all files uploaded to GitHub.**
 library(tidyverse)
 ```
 
-    ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-    ## ✔ dplyr     1.1.4     ✔ readr     2.1.5
-    ## ✔ forcats   1.0.0     ✔ stringr   1.5.1
-    ## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
-    ## ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
-    ## ✔ purrr     1.0.2     
-    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-    ## ✖ dplyr::filter() masks stats::filter()
-    ## ✖ dplyr::lag()    masks stats::lag()
-    ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+```         
+## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ dplyr     1.1.4     ✔ readr     2.1.5
+## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+## ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+## ✔ purrr     1.0.2     
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+```
 
 ``` r
 library(ggrepel)
 ```
 
-*Background*: The data\[1\] we study in this challenge report the
+*Background*: The data$$1$$ we study in this challenge report the
 [*minimum inhibitory
 concentration*](https://en.wikipedia.org/wiki/Minimum_inhibitory_concentration)
 (MIC) of three drugs for different bacteria. The smaller the MIC for a
@@ -94,21 +101,23 @@ filename <- "./data/antibiotics.csv"
 df_antibiotics <- read_csv(filename)
 ```
 
-    ## Rows: 16 Columns: 5
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (2): bacteria, gram
-    ## dbl (3): penicillin, streptomycin, neomycin
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```         
+## Rows: 16 Columns: 5
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr (2): bacteria, gram
+## dbl (3): penicillin, streptomycin, neomycin
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
 
 ``` r
 df_antibiotics %>% knitr::kable()
 ```
 
 | bacteria                        | penicillin | streptomycin | neomycin | gram     |
-|:--------------------------------|-----------:|-------------:|---------:|:---------|
+|:----------------------|-----------:|-----------:|-----------:|:-----------|
 | Aerobacter aerogenes            |    870.000 |         1.00 |    1.600 | negative |
 | Brucella abortus                |      1.000 |         2.00 |    0.020 | negative |
 | Bacillus anthracis              |      0.001 |         0.01 |    0.007 | positive |
@@ -369,7 +378,7 @@ negative.
 
 In 1974 *Diplococcus pneumoniae* was renamed *Streptococcus pneumoniae*,
 and in 1984 *Streptococcus fecalis* was renamed *Enterococcus fecalis*
-\[2\].
+$$2$$.
 
 > Why was *Diplococcus pneumoniae* was renamed *Streptococcus
 > pneumoniae*?
@@ -390,8 +399,8 @@ is harder to tell as there is a lot more data to look at to compare the
 
 <!-- -------------------------------------------------- -->
 
-\[1\] Neomycin in skin infections: A new topical antibiotic with wide
+$$1$$ Neomycin in skin infections: A new topical antibiotic with wide
 antibacterial range and rarely sensitizing. Scope. 1951;3(5):4-7.
 
-\[2\] Wainer and Lysen, “That’s Funny…” *American Scientist* (2009)
+$$2$$ Wainer and Lysen, “That’s Funny…” *American Scientist* (2009)
 [link](https://www.americanscientist.org/article/thats-funny)
