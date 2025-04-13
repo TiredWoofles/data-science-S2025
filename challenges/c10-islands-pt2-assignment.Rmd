@@ -1,7 +1,7 @@
 ---
 title: "The Islands, Part 2: Study"
-author: "(Your name here)"
-date: 202X-XX-XX
+author: "Suwanee Li, Lucien Lin, Allyson Hur, Michaela Fox, Ariel Chen, Rohan Giancaspro"
+date: 2025-04-12
 output:
   github_document:
     toc: true
@@ -28,7 +28,7 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 <!-- ------------------------- -->
 
 | Category | Needs Improvement | Satisfactory |
-|----|----|----|
+|------------------|-----------------------------|-------------------------|
 | Effort | Some task **q**'s left unattempted | All task **q**'s attempted |
 | Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
 | Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
@@ -49,6 +49,7 @@ Make sure to commit both the challenge report (`report.md` file) and supporting 
 ```{r setup}
 library(tidyverse)
 library(rsample)
+library(dplyr)
 
 # TODO: Include any other packages you need
 ```
@@ -61,46 +62,277 @@ While you provided this plan in c08 (Part 1), please include your plan here. In 
 
 -   (What population are you going to study?)
     -   All of the Islanders? Only the residents of Helvig? Participants meeting certain criteria (in which case, you need to list *covariates*)?
+    -   Students at the University of Arcadia are in the arts, law, science, and health majors.
 
 #### Quantity of interest
 
--   (Write your quantity of interest here)
+-   Pre and post-drinking mental test results (memory game)
+-   Pre and post-drinking coordination results (balance test with eyes closed)
 
 #### Covariates
 
--   (Write any relevant covariates here)
--   (There's probably more than one!)
+-   Blood alcohol content (BAC)
+-   Major 
 
 #### Observation or experiment?
 
 The Islands allows you to ask islanders to complete tasks. If you just take measurements on your participants, then it's an *observational study*. But if you also introduce something that's meant to change the outcome of a measurement (e.g., drinking coffee before taking a test), that's called an *experimental study*. You need to decide whether your study is observational or experimental.
 
--   (Observation or experiment?)
+-   The study is experimental. We are having the subjects perform a mental and coordination test before and after consuming six shots of vodka.
 
 #### Question / Hypothesis
 
 -   (Write your question / hypothesis here)
     -   This could be an observational question, like "How are X and Y related in the population?"
     -   This could be an experimental question, like "What effect does X have on Y in the population?"
+    -   Which major(s) are most likely to perform the best coordination-wise before the influence of alcohol? What about mentally?
+        -   We suspect that law majors will perform the best in coordination and mentally prior to the presence of alcohol. 
+    -   Which major(s) are most likely to perform the best coordination-wise when under the influence of alcohol? What about mentally?
+        -   We suspect that the art majors will perform the best when under the influence of alcohol. 
+    -   Which major(s) are most likely to have their mental performance affected by alcohol? What about coordination-wise?
+        -   We suspect that science majors will be drastically affected by the influence of alcohol.
 
 #### Sampling plan
 
 -   (What steps will you take to collect the data?)
     -   Be specific. For instance, if you're going to collect a random sample, how will you enumerate all of the things to be sampled?
+        -   We used a random name picker formula in spreadsheets: (=ARRAY_CONSTRAIN(SORT(A1:A58, RANDARRAY(COUNTA(A1:A58)), TRUE), 25, 1))
+
+        -   If someone rejected our study, we would replace them using the randomizer until we ended up with 25 participants.
     -   Write a protocol. Document step-by-step instructions that your team will follow. That way, you can feasibly split up data collection among the whole team, while making sure each team member doesn't make ad hoc decisions that introduce bias into your results.
+        -   Randomize 25 names from a major using the randomizer equation. 
+            -   Obtain consent from all 25 members; if members decline consent, replace the member with another member from the same major.
+        -   Open links for all the 25 subjects.
+        -   Give each subject the memory game. Then, repeat with the balance test with eyes closed. Record BAC.
+        -   ⁠Set a stopwatch timer.
+        -   Give everyone vodka 30 mL (one shot).
+        -   Repeat until each subject has 6 shots.
+        -   Check timer for 30-45 min so that alcohol can take maximum effect
+        -   Give each subject the memory game. Continue with the balance test with eyes closed. Record BAC.
+        -   Record in a spreadsheet. 
 -   (How will you ensure the data is representative of your chosen population?)
+    -   We will randomly sample 25 students from each of our chosen majors.
 -   (For experiments only: How will you ensure any effects you observe are due to the treatment, and not due to other factors?)
+    -   Alongside using random sampling, we plan on standardizing the tests for each individual subject by making sure each subject has an equal time during the drinking phase. 
 -   (How will you choose your sample size?)
-    -   This should be a mix of how confident you want to be in your results, and what is actually *feasible* for your research team.
+    -   We chose our sample size of 25 because it was around half the size of the smallest major, so it was unlikely that half of the students in a given major would decline consent. Additionally, taking 25 samples seemed like a feasible amount considering our time constraint. 
 
 ### **q2** EDA
 
 Conduct an EDA on your data. Add as many code chunks as you need. Ensure your EDA gives enough context of the data for us to understand what comes next in this report.
 
+-   Average & median memory times across all majors before + after
+
+-   Average & median coordination times across all majors before + after
+
+-   Difference between before and after times for all majors
+
+```{r}
+df <- read_csv(
+  "C:/Users/sli2/Documents/data-science-S2025/challenges/data/majorsvalcohol.csv", 
+  skip = 1) %>%
+  glimpse()
+
+```
+
+```{r}
+# Remove Notes column
+df <- df %>% 
+  select(-Notes)
+
+# Remove rows with any NA values
+df <- 
+  na.omit(df)
+df %>%
+  glimpse()
+```
+
+```{r}
+df <- df %>%
+  filter(`Major:` != "Agriculture")
+
+df %>%
+  distinct(`Major:`) %>%
+  arrange(`Major:`) %>%
+  pull(`Major:`)
+```
+
+```{r}
+# Rename for convenience (optional but helpful)
+df_clean <- df %>%
+  rename(
+    Major = `Major:`,
+    Memory_Sober = `Memory Game (seconds) - Sober`,
+    Memory_Drunk = `Memory Game (seconds) - Drunk`,
+    Balance_Sober = `Balance Test Eyes Closed (seconds) - Sober`,
+    Balance_Drunk = `Balance Test Eyes Closed (seconds) - Drunk`,
+    BAC_Sober = `BAC - Sober`,
+    BAC_Drunk = `BAC - Drunk`
+  )
+
+df_long <- df_clean %>%
+  pivot_longer(
+    cols = c(Memory_Sober, Memory_Drunk,
+             Balance_Sober, Balance_Drunk,
+             BAC_Sober, BAC_Drunk),
+    names_to = c("Metric", "Condition"),
+    names_sep = "_",
+    values_to = "Value"
+  )
+
+df_long
+```
+
+```{r}
+# Average Memory times sober v drunk across major
+df_long %>%
+  filter(Metric == "Memory") %>%
+  group_by(Major, Condition) %>%
+  summarise(Average_Time = mean(Value, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(x = reorder(Major, Average_Time), y = Average_Time, fill = Condition)) +
+  geom_col(position = "dodge") +
+  coord_flip() +
+  labs(title = "Average Memory Game Times by Major",
+       x = "Major", y = "Average Time (seconds)")
+```
+
+```{r}
+# Median memory times across majors, sober vs drunk
+df_long %>%
+  filter(Metric == "Memory") %>%
+  group_by(Major, Condition) %>%
+  summarise(Median_Time = median(Value, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(x = reorder(Major, Median_Time), y = Median_Time, fill = Condition)) +
+  geom_col(position = "dodge") +
+  coord_flip() +
+  labs(title = "Median Memory Game Times by Major",
+       x = "Major", y = "Median Time (seconds)")
+```
+
+```{r}
+# Box and whisker plot for memory times (sober vs. drunk)
+df_long %>%
+  filter(Metric == "Memory") %>%
+  ggplot(aes(x = Major, y = Value, fill = Condition)) +
+  geom_boxplot() +
+  coord_flip() +  # Flip coordinates for better readability
+  labs(title = "Box and Whisker Plot of Memory Game Times by Major",
+       x = "Major", y = "Memory Time (seconds)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r}
+# Pivot for balance coordination times (before and after drinking)
+balance_long <- df_clean %>%
+  pivot_longer(
+    cols = c(Balance_Sober, Balance_Drunk),
+    names_to = c("Metric", "Condition"),
+    names_sep = "_",
+    values_to = "Balance_Time"
+  ) %>%
+  filter(Metric == "Balance") 
+```
+
+```{r}
+# Average Coordination Times across majors, sober vs drunk
+balance_long %>%
+  group_by(Major, Condition) %>%
+  summarise(Average_Time = mean(Balance_Time, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(x = reorder(Major, Average_Time), y = Average_Time, fill = Condition)) +
+  geom_col(position = "dodge") +
+  coord_flip() +
+  labs(title = "Average Coordination Times by Major",
+       x = "Major", y = "Average Time (seconds)")
+```
+
+```{r}
+# Median Coordination Times across majors, sober vs drunk
+balance_long %>%
+  group_by(Major, Condition) %>%
+  summarise(Median_Time = median(Balance_Time, na.rm = TRUE), .groups = "drop") %>%
+  ggplot(aes(x = reorder(Major, Median_Time), y = Median_Time, fill = Condition)) +
+  geom_col(position = "dodge") +
+  coord_flip() +
+  labs(title = "Median Coordination Times by Major",
+       x = "Major", y = "Median Time (seconds)")
+```
+
+```{r}
+# Pivot the data to long format for Memory and Balance differences
+df_diff_long <- df %>%
+  pivot_longer(
+    cols = c(`Memory difference`, `Balance difference`),
+    names_to = "Metric",
+    values_to = "Difference"
+  ) 
+df_diff_long
+```
+
+```{r}
+df_diff_long %>%
+  ggplot(aes(x = reorder(`Major:`, Difference), y = Difference, fill = Metric)) +
+  geom_boxplot() +
+  coord_flip() +
+  labs(title = "Difference in Memory and Balance Times by Major",
+       x = "Major", y = "Difference in Time (seconds)")
+```
+
+```         
+```
+
 ### **q3** Key Analyses
 
 Present the key analyses that support your questions / hypotheses. This could include summary statistics (e.g., a proportion of Islanders), grouped summary statistics (e.g., a proportion for group A, and for group B), or visualizations (e.g., a histogram). This section should be short, and every analysis should directly relate to q4.
 
+-   Law major students performed the best drunk and sober for the memory game. The same is reflected in the median times. 
+
+-   For the balance tests, the law students had the best average time while sober, while science has the best average time while drunk. 
+
+    -   For the median times, art major students had the highest median time while sober while science major students had the highest median time while drunk.
+
+-   For the difference in balance times, the health major students have the shortest interquartile range, while the law students have the longest interquartile range. 
+
+-   There was a notable difference in the times of pre and post-drinking performances for the balance test.
+
 ### **q4** Answers
 
 Connect your Key Analyses to your questions / hypotheses. What did you conclude from your study?
+
+1.  Which major(s) are most likely to perform the best coordination-wise before the influence of alcohol? What about mentally?
+
+-   We suspect that law majors will perform the best in coordination and mentally prior to the presence of alcohol. 
+
+2.  Which major(s) are most likely to perform the best coordination-wise when under the influence of alcohol? What about mentally?
+
+-   We suspect that the art majors will perform the best when under the influence of alcohol. 
+
+3.  Which major(s) are most likely to have their mental performance affected by alcohol? What about coordination-wise?
+
+-   We suspect that science majors will be drastically affected by the influence of alcohol. 
+
+First hypothesis: 
+
+	Our first hypothesis was proven right as law students scored the lowest on the average and median memory game times. For memory time that indicates best performance as they complete the test the fastest. Law on the Box and Whiskers plot also shows that they consistently perform the best as a majority; the interquartile range is lower than a majority of other major’s values. 
+
+Interestingly, most majors (with the exception of health) performed better drunk than sober by at most a few seconds, which is not a substantial difference. The law students performed the best, followed by science, health, and then arts. It should be noted that the memory game doesn’t specify accuracy, which may also present a trend. We suspect that those performing drunk were making quicker decisions, but their accuracy may have been drastically reduced. We believe that the results from the coordination tests can support this claim. 
+
+When looking at the median memory game times, the difference between the sober and drunk times is more sizable, especially for health and science. The law students’ times were notably lower compared to the other majors. The median times follow the same trend, where the subjects would perform slightly better on the memory game drunk, except for the health major.
+
+Overall, while most of the majors performed slightly better on the memory game sober compared to drunk, there isn’t a sizable enough difference to highlight a strong correlation between alcohol and mental performance. 
+
+Second hypothesis: 
+
+	Our second hypothesis was proven wrong when we compared the mean and median of both coordination and memory tests. While sober, the law students performed the best by having the highest average coordination time, followed by arts, health, and science. However, while drunk, science had the highest average coordination time, followed by arts, law, then health. 
+
+The results are quite different when looking at median coordination times. When sober, arts has the highest median coordination time, followed by science, health, and then law. When drunk, the science major students have the highest median coordination time, followed by arts and law (tied), then health. 
+
+Third hypothesis: 
+
+We found that science majors were least impacted by the influence of alcohol. Therefore, our third hypothesis was proven wrong. Instead, when comparing the lower interquartile range, we found that law students were most impacted when under the influence of alcohol. Furthermore, comparing the spread of data, we found that health students had the smallest distribution across the entire range (excluding outliers). 
+
+When looking at the difference in memory times by major, there is a much larger range of differences for the balance/coordination times compared to the memory times. This graph can give an insight into which majors were most affected by the alcohol by giving the difference in performance scores before and after drinking. The difference in times for the memory game were all quite low, with law having the shortest interquartile range, followed by science, health, then arts. 
+
+Conclusion:
+
+In conclusion, for the memory game, the law students had the best average time and median time. However, there wasn’t a notable difference in the times of the pre and post drinking performances, suggesting that there isn’t a strong correlation between alcohol and mental tasks. On the other hand, there was a notable difference in the times of pre and post drinking performances for the balance test. The law students performed the best when sober, while the science students performed the best when drunk. This is because the law students were affected the most by the alcohol since they had the biggest time difference in their balance performance. With this being said, a more thorough study would need to be conducted in order to determine if the workload and demands of the major itself would have an impact on their ability to perform mental and coordination tasks while under the influence of alcohol. However, it is evident that the coordination test results were highly impacted after drinking.
