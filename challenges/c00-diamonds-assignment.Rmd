@@ -1,7 +1,7 @@
 ---
 title: "Getting Started: Diamonds"
 author: "(Suwanee Li)"
-date: 2020-
+date: 2025-1-29
 output:
   github_document:
     toc: true
@@ -28,7 +28,7 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 <!-- ------------------------- -->
 
 | Category | Needs Improvement | Satisfactory |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Effort | Some task **q**'s left unattempted | All task **q**'s attempted |
 | Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
 | Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
@@ -60,7 +60,7 @@ In this first stage, you will explore the `diamonds` dataset and document your o
 ## TASK: Plot `price` vs `carat` below
 ## Your code here!
 diamonds %>%
-  ggplot(aes(price, carat)) +
+  ggplot(aes(carat,price)) +
   geom_point()
 ```
 
@@ -76,18 +76,23 @@ diamonds %>%
 ## TASK: Plot `price`, `carat`, and `cut` below
 ## Your code here!
 
-ggplot(diamonds,aes(x = carat, y = price)) +
-facet_wrap(~ cut)+
-labs(x = "Carat", y = "Price") +
-geom_point(size = 0.5)
-      
+ggplot(diamonds, aes(x = carat, y = price)) +
+  geom_point(size = 0.5) +
+  geom_smooth(method = "lm", se = FALSE, color = "darkred", size = 0.8) +
+  facet_wrap(~ cut) +
+  labs(
+    title = "Diamond Price vs Carat by Cut",
+    x = "Carat",
+    y = "Price (USD)"
+  )
+
 ```
 
 **Observations**:
 
 -   (Write your observations here!)
 -   The cut of the diamond comes in a range of carats and are usually around between 0-3 carats.
--   The price appears to be more impacted by the carot of the diamond rather than the cut. But it is still impacted by the cut and the cut generally above very good means a higher priced diamond.
+-   The price of the diamond is more determined by the size than the cut of the diamond. This can be determined due to how the carat sizes as they increase across all the cuts increase in very similar trend lines regardless of cut.
 
 # Communication
 
