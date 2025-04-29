@@ -173,16 +173,13 @@ human judgment.[2]
 ```{r q3-task}
 ## TODO: Compare Michelson's estimate and error against the true value
 ## Your code here!
-df_q3 <- df_michelson %>%
-  mutate(
-    error = LIGHTSPEED_VACUUM - LIGHTSPEED_MICHELSON,
-    plus_bound = LIGHTSPEED_MICHELSON + LIGHTSPEED_PM,
-    minus_bound = LIGHTSPEED_MICHELSON - LIGHTSPEED_PM,
-    Uncertainty = plus_bound-minus_bound
-  )
-df_q3 %>% 
-  select(error, Uncertainty) %>%
-  knitr::kable()
+# Clean version of q3 output
+tibble(
+  error = LIGHTSPEED_VACUUM - LIGHTSPEED_MICHELSON,
+  plus_bound = LIGHTSPEED_MICHELSON + LIGHTSPEED_PM,
+  minus_bound = LIGHTSPEED_MICHELSON - LIGHTSPEED_PM
+) %>%
+  mutate(Uncertainty = plus_bound-minus_bound)
 ```
 
 **Observations**: - Is Michelson's estimate of the error (his
@@ -190,9 +187,11 @@ uncertainty) greater or less than the true error? - (Your response
 here) - Make a quantitative comparison between Michelson's uncertainty
 and his error. - (Your response here)
 
-The analyst's error assessment is 102 and the error is -151.542. His
-value is less than the true error as even though -151.542 is a lower
-number their absolute value is higher.
+Micheleason's uncertainty is +- 51km/s. This is less than the true error
+of 151.542 km/s. 151.542 km/s - 51km/s results in a difference of
+100.542 km/s and for my comparison 151.542/52 shows a ratio of error to
+uncertainty is 2.97 or the error is nearly 3 times larger than
+Michelson's estimated uncertainty.
 
 The following plot shows all of Michelson's data as a [control
 chart](https://en.wikipedia.org/wiki/Control_chart); this sort of plot
@@ -267,19 +266,28 @@ df_q2 %>%
 **Observations**: Similarities - (your responses here) Differences -
 (your responses here)
 
-I notice that both in simulated and real there are lots of value points
-that fall close to the actual value or within margin of error. However,
-there are many cases where the mean velocity falls outside of even the
-margin of error.
+Similar
 
-Similarities: Most of the time the mean velocity in vacuum is within the
-margin of error. They both have very sharp changes of data getting
-higher and lower as time moves on.
+-   Both real and simulated have many measurements that fall within the
+    Michelson's margin of error (dashed lines)
 
-Differences: They have different averages through the different dates.
-It appears that real data seems to get less dramatic from how much the
-value of the mean has changed from one day to the next but the simulated
-gets more dramatic as time goes on.
+-   Both show random variation in measurement across the different days
+
+-   Both the grey line generally hovers around the central estimate
+
+Differences
+
+-   Real data is more consistent to day to day averages as the mean line
+    is relatively stable, suggesting real measurement conditions have
+    more systematic controls
+
+-   Simulated data has more frequency and sharper day to say swings in
+    the mean which reflects the random variation that Michelson's
+    experimental constraints did not have.
+
+-   There are more extreme outliers in the simulated data that exceed
+    even the upper or lower bounds (shown in dashed lines). The real
+    data mostly stays within those control limits
 
 ### **q5** You have access to a few other variables. Construct a **at least three** visualizations of `VelocityVacuum` against these other factors. Are there other patterns in the data that might help explain the difference between Michelson's estimate and `LIGHTSPEED_VACUUM`?
 
@@ -310,7 +318,7 @@ ggplot(df_q2, aes(x = Temp, y = velocityvacuum)) +
   geom_smooth(method = "loess", se = FALSE, color = "red") + 
   geom_hline(yintercept = LIGHTSPEED_VACUUM, linetype = "dashed", color = "blue") +
   labs(
-    title = "Speed of Light Over Time",
+    title = "Speed of Light Over Temperature",
     x = "Temp of Measurement",
     y = "Velocity (in Vacuum)"
   ) +
@@ -323,24 +331,27 @@ ggplot(df_q2, aes(x = Temp, y = velocityvacuum)) +
 -   Graph 1 Comparing dates to the velocity in vacuum and I noticed that
     their mean velocity picks up early on before taking a dip around
     June 16th. But all the values are pretty above the light speed
-    vacuum.
+    vacuum. Suggest systematic bias in Micheson's measuremnts but does
+    not explain why.
 -   Graph 2 The Distinctness values mean don't deviate too far from each
     other and are close in value but very far away from the light speed
-    vacuum.
+    vacuum. Distinctness may not have had a large influence on velocity.
+    does not explain overestimation.
 -   Graph 3 between temp to the mean velocities between the ranges of 70
     to 85 the values are nearly the same to each other. Outside of that
     range when the temperature is lower the velocity value gets lower.
     Then increases for higher temperatures. However, they are still way
-    above the light speed vacuum.
+    above the light speed vacuum. There is a weak trend with tempearure
+    but its not strong or consisten enough to explain the difference.
 
 ## Bibliography
 
 -   [1] Michelson, [Experimental Determination of the Velocity of
     Light](https://play.google.com/books/reader?id=343nAAAAMAAJ&hl=en&pg=GBS.PA115)
-    (1880)
+    (1880) 
 -   [2] Henrion and Fischhoff, [Assessing Uncertainty in Physical
     Constants](https://www.cmu.edu/epp/people/faculty/research/Fischoff-Henrion-Assessing%20uncertainty%20in%20physical%20constants.pdf)
-    (1986)
+    (1986) 
 -   [3] BYU video about a [Fizeau-Foucault
     apparatus](https://www.youtube.com/watch?v=Ik5ORaaeaME), similar to
     what Michelson used.
