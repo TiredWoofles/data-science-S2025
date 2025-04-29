@@ -224,7 +224,18 @@ print("Very good!")
 ### **q2** Perform a basic EDA on the aluminum data *without visualization*. Use your analysis to answer the questions under *observations* below. In addition, add your own *specific* question that you’d like to answer about the data—you’ll answer it below in q3.
 
 ``` r
-##
+# Count the number of distinct alloys
+df_stang_long %>%
+  distinct(alloy) %>%
+  count()
+```
+
+    ## # A tibble: 1 × 1
+    ##       n
+    ##   <int>
+    ## 1     1
+
+``` r
 summary(df_stang_long)
 ```
 
@@ -243,13 +254,27 @@ summary(df_stang_long)
     ##  3rd Qu.:0.3277  
     ##  Max.   :0.3310
 
+``` r
+# List the distinct angles tested
+df_stang_long %>%
+  distinct(angle)
+```
+
+    ## # A tibble: 3 × 1
+    ##   angle
+    ##   <int>
+    ## 1     0
+    ## 2    45
+    ## 3    90
+
 **Observations**:
 
 - Is there “one true value” for the material properties of Aluminum?
   - No, because there are multiple values for material properties like E
     and nu
 - How many aluminum alloys are in this dataset? How do you know?
-  - There are 26 because there are 26 rows
+  - There is only 1 as given by distinct which tells us there is only
+    one type of alluminium alloy
 - What angles were tested?
   - 0, 45 and 90 were tested angles
 - What thicknesses were tested?
@@ -264,83 +289,14 @@ summary(df_stang_long)
 
 ``` r
 ## TASK: Investigate your question from q1 here
-# df_avg <- df_stang_long %>%
-#   group_by(thick, angle) %>%
-#   summarise(avg_nu = mean(nu, na.rm = TRUE),
-#             sd_nu = sd(nu, na.rm = TRUE)
-#             ) %>%
-#   ungroup()
-# ggplot(df_avg, aes(x = factor(angle), y = avg_nu, color = factor(thick), group = thick)) +
-#   geom_line(size = 1) + 
-#   geom_point(size = 3) + 
-  #geom_errorbar(
-  #  aes(ymin = avg_nu - sd_nu, ymax = avg_nu + sd_nu),
-  #  width = 0.2,  
-  #  size = 0.8    
-  #)
-  # labs(
-  #   title = "Average Nu Value by Angle for Each Thickness",
-  #   x = "Angle (degrees)",
-  #   y = "Average Nu/ Poisson's Ratio Value",
-  #   color = "Thickness"
-  # ) +
-  # theme_minimal()
-#   
-# df_avg <- df_stang_long %>%
-#   group_by(thick, angle) %>%
-#   summarise(avg_nu = mean(nu, na.rm = TRUE),
-#             sd_nu = sd(nu, na.rm = TRUE)
-#             ) %>%
-#   ungroup()
-# ggplot(df_avg, aes(x = factor(angle), y = avg_nu, color = factor(thick), group = thick)) +
-#   geom_line(size = 1) + 
-#   geom_point(size = 3) + 
-#   #geom_errorbar(
-#   #  aes(ymin = avg_nu - sd_nu, ymax = avg_nu + sd_nu),
-#   #  width = 0.2,  
-#   #  size = 0.8    
-#   #)
-#   labs(
-#     title = "Average Nu Value by Angle for Each Thickness",
-#     x = "Angle (degrees)",
-#     y = "Average Nu/ Poisson's Ratio Value",
-#     color = "Thickness"
-#   ) +
-#   ylim(0, max(df_avg$avg_nu, na.rm = TRUE)) +
-#   theme_minimal()
-# 
-# 
-# 
-# df_avg <- df_stang_long %>%
-#   group_by(thick, angle) %>%
-#   summarise(avg_nu = mean(nu, na.rm = TRUE),
-#             sd_nu = sd(nu, na.rm = TRUE)
-#             ) %>%
-#   ungroup()
-# ggplot(df_avg, aes(x = factor(angle), y = avg_nu, color = factor(thick), group = thick)) +
-#   geom_line(size = 1) + 
-#   geom_point(size = 3) + 
-#   #geom_errorbar(
-#   #  width = 0.2,  
-#   #  size = 0.8    
-#   #)
-#   labs(
-#     title = "Average Nu Value by Angle for Each Thickness",
-#     x = "Angle (degrees)",
-#     y = "Average Nu/ Poisson's Ratio Value",
-#     color = "Thickness"
-#   ) +
-#   ylim(0.31, 0.34) +
-#   theme_minimal()
-```
 
-``` r
-## TASK: Investigate your question from q1 here
+# Compute average and standard deviation of Poisson's ratio (Nu) by thickness and angle
 df_avg <- df_stang_long %>%
   group_by(thick, angle) %>%
-  summarise(avg_E = mean(E, na.rm = TRUE),
-            sd_E = sd(E, na.rm = TRUE)
-            ) %>%
+  summarise(
+    avg_nu = mean(nu, na.rm = TRUE),
+    sd_nu = sd(nu, na.rm = TRUE)
+  ) %>%
   ungroup()
 ```
 
@@ -348,21 +304,22 @@ df_avg <- df_stang_long %>%
     ## `.groups` argument.
 
 ``` r
-# Create the plot
-ggplot(df_avg, aes(x = factor(angle), y = avg_E, color = factor(thick), group = thick)) +
+# Plot mean Poisson's ratio by angle and thickness
+ggplot(df_avg, aes(
+  x = factor(angle),
+  y = avg_nu,
+  color = factor(thick),
+  group = thick
+)) +
   geom_line(size = 1) +
   geom_point(size = 3) +
-  #geom_errorbar(
-  #  aes(ymin = avg_E - sd_E, ymax = avg_E + sd_E),
-  #  width = 0.2,
-  #  size = 0.8
-  #)
   labs(
-    title = "Average E Value by Angle for Each Thickness",
+    title = "Average Poisson's Ratio (Nu) by Angle for Each Thickness",
     x = "Angle (degrees)",
-    y = "Average E Value (ksi)",
+    y = "Average Nu / Poisson's Ratio",
     color = "Thickness"
   ) +
+  ylim(0.31, 0.34) +
   theme_minimal()
 ```
 
@@ -372,67 +329,7 @@ ggplot(df_avg, aes(x = factor(angle), y = avg_E, color = factor(thick), group = 
     ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
     ## generated.
 
-![](c03-stang-assignment_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
-
-``` r
-# 
-# 
-# 
-# df_avg <- df_stang_long %>%
-#   group_by(thick, angle) %>%
-#   summarise(avg_E = mean(E, na.rm = TRUE),
-#             sd_E = sd(E, na.rm = TRUE)
-#             ) %>%
-#   ungroup()
-# max_avg_E <- df_avg %>%
-#   summarise(max_avg_E = max(avg_E, na.rm = TRUE)) %>%
-#   pull(max_avg_E)
-# ggplot(df_avg, aes(x = factor(angle), y = avg_E, color = factor(thick), group = thick)) +
-#   geom_line(size = 1) + 
-#   geom_point(size = 3) + 
-#   #geom_errorbar(
-#   #  aes(ymin = avg_E - sd_E, ymax = avg_E + sd_E),
-#   #  width = 0.2,  
-#   #  size = 0.8    
-#   #)
-#   labs(
-#     title = "Average E Value by Angle for Each Thickness",
-#     x = "Angle (degrees)",
-#     y = "Average E Value (ksi)",
-#     color = "Thickness"
-#   ) +
-#   ylim(0, max_avg_E) + 
-#   theme_minimal()
-# 
-# 
-# 
-# df_avg <- df_stang_long %>%
-#   group_by(thick, angle) %>%
-#   summarise(avg_E = mean(E, na.rm = TRUE),
-#             sd_E = sd(E, na.rm = TRUE)
-#             ) %>%
-#   ungroup()
-# max_avg_E <- df_avg %>%
-#   summarise(max_avg_E = max(avg_E, na.rm = TRUE)) %>%
-#   pull(max_avg_E)
-# ggplot(df_avg, aes(x = factor(angle), y = avg_E, color = factor(thick), group = thick)) +
-#   geom_line(size = 1) + 
-#   geom_point(size = 3) + 
-#   geom_errorbar(
-#    aes(ymin = avg_E - sd_E, ymax = avg_E + sd_E),
-#    width = 0.2,
-#    size = 0.8
-#   ) +
-#   labs(
-#     title = "Average E Value by Angle for Each Thickness",
-#     x = "Angle (degrees)",
-#     y = "Average E Value (ksi)",
-#     color = "Thickness"
-#   ) +
-#   # ylim(9800, 10600) +
-#   theme_minimal() +
-#   coord_cartesian(ylim = c(9800, 10600))
-```
+![](c03-stang-assignment_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
 
 **Observations**:
 
