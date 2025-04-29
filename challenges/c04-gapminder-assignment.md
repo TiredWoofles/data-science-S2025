@@ -143,11 +143,15 @@ gapminder
 ``` r
 ## TASK: Find the largest and smallest values of `year` in `gapminder`
 
-year_max <- gapminder %>% pull(year) %>% max()
-year_min <- gapminder %>% pull(year) %>% min()
+year_max <-
+  gapminder %>%
+  pull(year) %>%
+  max()
 
-#year_max <- NA_real_
-#year_min <- NA_real_
+year_min <-
+  gapminder %>%
+  pull(year) %>%
+  min()
 ```
 
 Use the following test to check your work.
@@ -320,36 +324,30 @@ variables; think about using different aesthetics or facets.
 
 ``` r
 ## TASK: Create a visual of gdpPercap vs continent
+
+# Filter for min and max year
 filtered_data <- gapminder %>%
-  filter(year == year_min | year == year_max)
+  filter(year %in% c(year_min, year_max))
+
+# Identify outliers with high GDP per capita
 outliers_data <- filtered_data %>%
   filter(gdpPercap > 13000)
-  ggplot(filtered_data, aes(x = continent, y = gdpPercap, fill = continent)) +
-  geom_boxplot() +  # Boxplot shows distribution of GDP per capita
+
+# Plot GDP per capita by continent, highlighting outliers without a legend
+ggplot(filtered_data, aes(x = continent, y = gdpPercap, fill = continent)) +
+  geom_boxplot() +
+  geom_point(
+    data = outliers_data, 
+    aes(color = country)
+  ) +
+  facet_wrap(~year) +
   labs(
     title = paste("GDP per Capita vs Continent for Years", year_min, "and", year_max),
     x = "Continent",
     y = "GDP per Capita"
   ) +
-  geom_point(
-    data = outliers_data, 
-    aes(color = country),
-    size = 3,  # Make the outliers bigger
-     shape = 17,  # Shape 21 is a filled circle
-    fill = "green"  # Color of the points
-  ) + 
-  facet_wrap(~ year) +
   theme_minimal() +
-  theme(
-    # Adjust the position and size of the legend
-    legend.position = "right",  # Keep the legend on the right side
-    legend.key.size = unit(0.5, "cm"),  # Decrease size of legend keys (the boxes around items)
-    legend.text = element_text(size = 3),  # Reduce the font size for the legend text
-    legend.title = element_text(size = 9),  # Reduce font size for the legend title
-    legend.box.spacing = unit(0.5, "cm"),  # Reduce the space between the legend items
-    legend.margin = margin(0, 0, 0, 0),  # Reduce the margin around the legend
-    legend.direction = "vertical"  # Arrange legend items vertically (default is vertical)
-  )
+  theme(legend.position = "none")
 ```
 
 ![](c04-gapminder-assignment_files/figure-gfm/q4-task-1.png)<!-- -->
@@ -412,10 +410,14 @@ the relationship between variables, or something else entirely.
 
 ``` r
 ## TASK: Your first graph
+# Average Life Expectancy by Year
+# Average Life Expectancy by Year
 avg_lifeExp <- gapminder %>%
   group_by(year) %>%
   summarise(avg_lifeExp = mean(lifeExp, na.rm = TRUE))
-ggplot(avg_lifeExp, aes(x = year, y = avg_lifeExp)) +
+
+avg_lifeExp %>%
+  ggplot(aes(x = year, y = avg_lifeExp)) +
   geom_line(color = "blue", size = 1) +
   labs(
     title = "Average Life Expectancy by Year",
@@ -434,12 +436,15 @@ ggplot(avg_lifeExp, aes(x = year, y = avg_lifeExp)) +
 ![](c04-gapminder-assignment_files/figure-gfm/q5-task1-1.png)<!-- -->
 
 ``` r
+# Average Population by Year
 avg_pop <- gapminder %>%
   group_by(year) %>%
   summarise(avg_pop = mean(pop, na.rm = TRUE))
-ggplot(avg_pop, aes(x = year, y = avg_pop)) +
+
+avg_pop %>%
+  ggplot(aes(x = year, y = avg_pop)) +
   geom_line(color = "green", size = 1) +
-  scale_y_continuous(labels = scales::comma) +  # Format y-axis for readability
+  scale_y_continuous(labels = scales::comma) +
   labs(
     title = "Average Population by Year",
     x = "Year",
@@ -451,13 +456,15 @@ ggplot(avg_pop, aes(x = year, y = avg_pop)) +
 ![](c04-gapminder-assignment_files/figure-gfm/q5-task1-2.png)<!-- -->
 
 ``` r
+# Average GDP per Capita by Year
 avg_gdp <- gapminder %>%
   group_by(year) %>%
   summarise(avg_gdp = mean(gdpPercap, na.rm = TRUE))
 
-ggplot(avg_gdp, aes(x = year, y = avg_gdp)) +
+avg_gdp %>%
+  ggplot(aes(x = year, y = avg_gdp)) +
   geom_line(color = "red", size = 1) +
-  scale_y_continuous(labels = scales::comma) +  # Format y-axis for readability
+  scale_y_continuous(labels = scales::comma) +
   labs(
     title = "Average GDP per Capita by Year",
     x = "Year",
@@ -512,7 +519,13 @@ ggplot(filtered_data, aes(x = continent, y = lifeExp, fill = continent)) +
 ## TASK: Your third graph
 ggplot(gapminder, aes(x = lifeExp, y = gdpPercap, color = continent)) +
   geom_point(size = 2, alpha = 0.6) +  # Scatter plot with points
-  geom_smooth(method = "lm", aes(group = continent), se = FALSE, linetype = "solid", size = 3) +  # Trendline for each continent
+  geom_smooth(
+    method = "lm",
+    aes(group = continent),
+    se = FALSE,
+    linetype = "solid",
+    size = 3
+  ) +  # Trendline for each continent
   scale_y_log10() +  # Apply log scale for GDP on y-axis
   labs(
     title = "Life Expectancy vs GDP per Capita with Trendlines for Each Continent",
