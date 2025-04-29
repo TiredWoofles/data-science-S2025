@@ -1,7 +1,7 @@
 RMS Titanic
 ================
-(Your name here)
-2020-
+(Suwanee Li)
+2025-4-28
 
 - [Grading Rubric](#grading-rubric)
   - [Individual](#individual)
@@ -159,7 +159,7 @@ df_titanic %>% summarize(total = sum(n))
     how data was retrieved. Such as reported from tickets sold, bodies
 
     collected etc. But still the difference is only about 20 people
-    which is less than 1/100th of the total population.
+    which is more than 1/100th of the total population.
 
 ### **q3** Create a plot showing the count of persons who *did* survive, along with aesthetics for `Class` and `Sex`. Document your observations below.
 
@@ -239,20 +239,19 @@ df_prop
 ### **q4** Replicate your visual from q3, but display `Prop` in place of `n`. Document your observations, and note any new/different observations you make in comparison with q3. Is there anything *fishy* in your plot?
 
 ``` r
-df_prop2 <-
-df_titanic %>%
-  filter(Survived == "Yes") %>%
-  group_by(Class, Sex) %>% 
-  mutate(
-    Total = sum(n),
-    Prop = n / Total
-  )
-ggplot(df_prop2, aes(x = Class, y = Prop, fill = Sex)) +
+df_prop_survived <- df_prop %>%
+  filter(Survived == "Yes")
+
+# Now plot proportion of survivors
+ggplot(df_prop_survived, aes(x = Class, y = Prop, fill = Sex)) +
   geom_col(position = "dodge") +
-  labs(title = "Proportion of Survivors", 
+  labs(title = "Proportion of Survivors by Class and Sex", 
        x = "Class", 
-       y = "Proportion of Survivors")
+       y = "Proportion of Group that Survived")
 ```
+
+    ## Warning: Removed 2 rows containing missing values or values outside the scale range
+    ## (`geom_col()`).
 
 ![](c01-titanic-assignment_files/figure-gfm/q4-task-1.png)<!-- -->
 
@@ -262,14 +261,10 @@ ggplot(df_prop2, aes(x = Class, y = Prop, fill = Sex)) +
 
 - Is there anything *fishy* going on in your plot?
 
-  - I’m noticing it shows that according to this graph it shows that it
-    is close to or nearly all the 1st class female, and crew (either
-    male or female) survived given the amount of them present. Which I
-    think what is going on is the graph is pulling data specifically
-    from the first instance of the higher combination of sex and class
-    to format the graph. So female and male crew children do not exist
-    resulting in 0 survivors for them but proportionally all male and
-    female crew that survived were adults so theyre both 100s.
+  - The proportion after filtering to only survivors. That distorted the
+    math made each bar represent the share of all survivors not the
+    survival rate within each group. So it looked like survival was
+    evenly distributed, even though that’s not true.
 
 - <div>
 
@@ -289,6 +284,31 @@ df_titanic %>%
     Prop = n / Total
   ) %>%
   filter(Survived == "Yes") 
+df_prop2
+```
+
+    ## # A tibble: 16 × 7
+    ## # Groups:   Class, Sex, Age [16]
+    ##    Class Sex    Age   Survived     n Total     Prop
+    ##    <chr> <chr>  <chr> <chr>    <dbl> <dbl>    <dbl>
+    ##  1 1st   Male   Child Yes          5     5   1     
+    ##  2 2nd   Male   Child Yes         11    11   1     
+    ##  3 3rd   Male   Child Yes         13    48   0.271 
+    ##  4 Crew  Male   Child Yes          0     0 NaN     
+    ##  5 1st   Female Child Yes          1     1   1     
+    ##  6 2nd   Female Child Yes         13    13   1     
+    ##  7 3rd   Female Child Yes         14    31   0.452 
+    ##  8 Crew  Female Child Yes          0     0 NaN     
+    ##  9 1st   Male   Adult Yes         57   175   0.326 
+    ## 10 2nd   Male   Adult Yes         14   168   0.0833
+    ## 11 3rd   Male   Adult Yes         75   462   0.162 
+    ## 12 Crew  Male   Adult Yes        192   862   0.223 
+    ## 13 1st   Female Adult Yes        140   144   0.972 
+    ## 14 2nd   Female Adult Yes         80    93   0.860 
+    ## 15 3rd   Female Adult Yes         76   165   0.461 
+    ## 16 Crew  Female Adult Yes         20    23   0.870
+
+``` r
 ggplot(df_prop2, aes(x = Age, y = Prop, fill = Sex)) +
   facet_grid(cols = vars(Class)) + 
   geom_col(position = "dodge") +
@@ -301,6 +321,20 @@ ggplot(df_prop2, aes(x = Age, y = Prop, fill = Sex)) +
     ## (`geom_col()`).
 
 ![](c01-titanic-assignment_files/figure-gfm/q5-task-1.png)<!-- -->
+
+``` r
+ggplot(df_prop2, aes(x = Class, y = Prop, fill = Sex)) +
+  facet_grid(cols = vars(Age)) + 
+  geom_col(position = "dodge") +
+  labs(title = "Proportion of Survivors", 
+       x = "Class", 
+       y = "Proportion of Survivors")
+```
+
+    ## Warning: Removed 2 rows containing missing values or values outside the scale range
+    ## (`geom_col()`).
+
+![](c01-titanic-assignment_files/figure-gfm/q5-task-2.png)<!-- -->
 
 **Observations**:
 
