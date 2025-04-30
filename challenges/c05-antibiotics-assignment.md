@@ -1,12 +1,7 @@
----
-editor_options: 
-  markdown: 
-    wrap: 72
----
-
-# Antibiotics
-
-(Suwanee Li) 2025-03-06
+Antibiotics
+================
+(Suwanee Li)
+2025-03-06
 
 *Purpose*: Creating effective data visualizations is an *iterative*
 process; very rarely will the first graph you make be the most
@@ -41,7 +36,7 @@ define how you will be graded, both on an individual and team basis.
 <!-- ------------------------- -->
 
 | Category | Needs Improvement | Satisfactory |
-|------------------------|------------------------|------------------------|
+|----|----|----|
 | Effort | Some task **q**’s left unattempted | All task **q**’s attempted |
 | Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
 | Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
@@ -62,24 +57,22 @@ all files uploaded to GitHub.**
 library(tidyverse)
 ```
 
-```         
-## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-## ✔ dplyr     1.1.4     ✔ readr     2.1.5
-## ✔ forcats   1.0.0     ✔ stringr   1.5.1
-## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
-## ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
-## ✔ purrr     1.0.2     
-## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ dplyr::filter() masks stats::filter()
-## ✖ dplyr::lag()    masks stats::lag()
-## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-```
+    ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+    ## ✔ dplyr     1.1.4     ✔ readr     2.1.5
+    ## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+    ## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+    ## ✔ lubridate 1.9.4     ✔ tidyr     1.3.1
+    ## ✔ purrr     1.0.2     
+    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+    ## ✖ dplyr::filter() masks stats::filter()
+    ## ✖ dplyr::lag()    masks stats::lag()
+    ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
 
 ``` r
 library(ggrepel)
 ```
 
-*Background*: The data$$1$$ we study in this challenge report the
+*Background*: The data\[1\] we study in this challenge report the
 [*minimum inhibitory
 concentration*](https://en.wikipedia.org/wiki/Minimum_inhibitory_concentration)
 (MIC) of three drugs for different bacteria. The smaller the MIC for a
@@ -101,23 +94,21 @@ filename <- "./data/antibiotics.csv"
 df_antibiotics <- read_csv(filename)
 ```
 
-```         
-## Rows: 16 Columns: 5
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## chr (2): bacteria, gram
-## dbl (3): penicillin, streptomycin, neomycin
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-```
+    ## Rows: 16 Columns: 5
+    ## ── Column specification ────────────────────────────────────────────────────────
+    ## Delimiter: ","
+    ## chr (2): bacteria, gram
+    ## dbl (3): penicillin, streptomycin, neomycin
+    ## 
+    ## ℹ Use `spec()` to retrieve the full column specification for this data.
+    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 
 ``` r
 df_antibiotics %>% knitr::kable()
 ```
 
 | bacteria                        | penicillin | streptomycin | neomycin | gram     |
-|:----------------------|-----------:|-----------:|-----------:|:-----------|
+|:--------------------------------|-----------:|-------------:|---------:|:---------|
 | Aerobacter aerogenes            |    870.000 |         1.00 |    1.600 | negative |
 | Brucella abortus                |      1.000 |         2.00 |    0.020 | negative |
 | Bacillus anthracis              |      0.001 |         0.01 |    0.007 | positive |
@@ -190,12 +181,14 @@ ggplot(data_long, aes(x = bacteria, y = resistance, fill = antibiotic)) +
   theme_minimal() +
   labs(title = "Antibiotic Resistance of Different Bacteria",
        x = "Bacteria",
-       y = "Resistance Level",
+       y = "Resistance Level (MIC)",
        fill = "Antibiotic") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1),
         strip.text = element_text(size = 8)) +  # Rotate x-axis labels
   facet_wrap(~ gram) +  # Facet by Gram status (positive/negative)
-  scale_fill_manual(values = c("neomycin" = "green", "penicillin" = "blue", "streptomycin" = "red"))  # Optional custom colors for antibiotics
+  scale_fill_manual(values = c("neomycin" = "green", "penicillin" = "blue", "streptomycin" = "red")) +  # Optional custom colors
+  scale_y_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) +  # Log scale for MIC values
+  geom_hline(yintercept = 0.1, linetype = "dashed", color = "black") # Add line for clinically important MIC value
 ```
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.1-1.png)<!-- -->
@@ -213,7 +206,9 @@ your other visuals.
 ``` r
 # Step 1: Pivot the data to long format
 data_long <- df_antibiotics %>%
-  pivot_longer(cols = c(penicillin, streptomycin, neomycin), names_to = "antibiotic", values_to = "resistance") %>%
+  pivot_longer(cols = c(penicillin, streptomycin, neomycin), 
+               names_to = "antibiotic", 
+               values_to = "resistance") %>%
   mutate(gram_status = ifelse(gram == "negative", "negative", "positive"))
 
 # Step 2: Create a new column 'category' to define whether we are plotting Penicillin, Streptomycin, or Neomycin
@@ -226,17 +221,21 @@ data_long <- data_long %>%
     antibiotic == "neomycin" & gram_status == "negative" ~ "neomycin_negative"
   ))
 
-# Step 3: Plot the data
-ggplot(data_long, aes(x = bacteria, y = resistance, fill = antibiotic)) +
-  geom_bar(stat = "identity", position = "dodge") +
-  scale_fill_manual(values = c("penicillin" = "red", "streptomycin" = "green", "neomycin" = "blue")) +  # Custom colors for Penicillin, Streptomycin, Neomycin
+# Step 3: Plot the data using shape aesthetic and avoid faceting
+ggplot(data_long, aes(x = bacteria, y = resistance, color = antibiotic, shape = antibiotic)) +
+  geom_point(size = 4) +  # Use points for the data
+  scale_color_manual(values = c("penicillin" = "red", 
+                               "streptomycin" = "green", 
+                               "neomycin" = "blue")) +  
   labs(title = "Antibiotic Resistance by Bacteria",
        x = "Bacteria", 
-       y = "Resistance Value") +
-  facet_wrap(~ category, scales = "free_y", ncol = 3) +  # Separate facets for each category (penicillin, positive/negative streptomycin, neomycin)
+       y = "Resistance Value (MIC)",
+       color = "Antibiotic", shape = "Antibiotic") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),  # Rotate x-axis labels for readability
-        strip.text = element_text(size = 12))  # Adjust the facet label text size
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),  
+        legend.position = "bottom") +  
+  scale_y_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) +  # Log scale for MIC values
+  geom_hline(yintercept = 0.1, linetype = "dashed", color = "black")
 ```
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.2-1.png)<!-- -->
@@ -253,15 +252,27 @@ your other visuals.
 ``` r
 # Reshape data for heatmap
 melted_data <- df_antibiotics %>% 
-  pivot_longer(cols = c(penicillin, streptomycin, neomycin), names_to = "Antibiotic", values_to = "Sensitivity")
+  pivot_longer(cols = c(penicillin, streptomycin, neomycin), 
+               names_to = "Antibiotic", 
+               values_to = "Sensitivity")
 
-# Heatmap plot
-ggplot(melted_data, aes(x = Antibiotic, y = bacteria, fill = Sensitivity)) +
+# Ensure that the sensitivity values are above 0, since log10(0) is undefined
+melted_data <- melted_data %>% 
+  mutate(Sensitivity = ifelse(Sensitivity == 0, 0.001, Sensitivity))  
+
+# Create the heatmap plot with adjusted color scale and labels
+ggplot(melted_data, aes(x = Antibiotic, y = bacteria, fill = log10(Sensitivity))) +
   geom_tile() +
-  scale_fill_gradient(low = "green", high = "red", name = "Sensitivity Level") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", midpoint = log10(0.1), 
+                       name = "Log10 Sensitivity") +  
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  labs(title = "Bacterial Sensitivity to Antibiotics", x = "Antibiotics", y = "Bacteria")
+  labs(title = "Bacterial Sensitivity to Antibiotics", x = "Antibiotics", 
+       y = "Bacteria") +
+  geom_hline(yintercept = which(melted_data$bacteria == "MIC = 0.1"), 
+             linetype = "dashed", color = "black") +  
+  geom_text(aes(label = round(Sensitivity, 3)), color = "black", size = 3) +  
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))  
 ```
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.3-1.png)<!-- -->
@@ -277,35 +288,23 @@ your other visuals.
 
 ``` r
 # Calculate total concentration and the percentage of each antibiotic
-df_percentage <- df_antibiotics %>%
-  mutate(
-    total_concentration = penicillin + streptomycin + neomycin,
-    penicillin_pct = (penicillin / total_concentration) * 100,
-    streptomycin_pct = (streptomycin / total_concentration) * 100,
-    neomycin_pct = (neomycin / total_concentration) * 100
-  )
-
-# Select relevant columns to display
-df_percentage <- df_percentage %>%
-  select(bacteria, penicillin_pct, streptomycin_pct, neomycin_pct)
-
-# Create a long format data for plotting
-df_percentage_long <- df_percentage %>%
-  pivot_longer(cols = c(penicillin_pct, streptomycin_pct, neomycin_pct),
+# Create a long format data for plotting with raw antibiotic concentrations
+df_long <- df_antibiotics %>%
+  pivot_longer(cols = c(penicillin, streptomycin, neomycin),
                names_to = "antibiotic",
-               values_to = "percentage")
+               values_to = "concentration")
 
 # Plot the data
-ggplot(df_percentage_long, aes(x = bacteria, y = percentage, fill = antibiotic)) +
-  geom_bar(stat = "identity", position = "stack") +
-  labs(title = "Percentage of Antibiotic Concentration by Bacteria",
+ggplot(df_long, aes(x = bacteria, y = concentration, fill = antibiotic)) +
+  geom_bar(stat = "identity", position = "dodge") +
+  labs(title = "Antibiotic Concentration by Bacteria",
        x = "Bacteria",
-       y = "Percentage (%)") +
+       y = "Concentration (µg/mL)") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +  # Rotate x-axis labels
-  scale_fill_manual(values = c("penicillin_pct" = "#FF6666", 
-                               "streptomycin_pct" = "#66CC66", 
-                               "neomycin_pct" = "#66CCFF"))
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) + 
+  scale_fill_manual(values = c("penicillin" = "#FF6666", 
+                               "streptomycin" = "#66CC66", 
+                               "neomycin" = "#66CCFF"))  
 ```
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.4-1.png)<!-- -->
@@ -320,26 +319,42 @@ Note that your visual must be *qualitatively different* from *all* of
 your other visuals.
 
 ``` r
-# Pivot the data to long format
+# Reshape the data into long format
 df_long <- df_antibiotics %>%
   select(bacteria, penicillin, streptomycin, neomycin) %>%
   pivot_longer(cols = c(penicillin, streptomycin, neomycin), 
                names_to = "antibiotic", 
                values_to = "concentration")
 
-# Plot a stacked bar chart
-ggplot(df_long, aes(x = bacteria, y = concentration, fill = antibiotic)) +
-  geom_bar(stat = "identity", position = "stack") +
+# Ensure that the concentration values are above 0 for log10 transformation (replace 0 with a small value)
+df_long <- df_long %>%
+  mutate(concentration = ifelse(concentration == 0, 0.001, concentration))
+
+# Plot with dot plot for a different visual style
+ggplot(df_long, aes(x = bacteria, y = concentration, color = antibiotic)) +
+  geom_point(size = 4, position = position_jitter(width = 0.2)) +  
   labs(title = "Antibiotic Concentration by Bacteria",
        x = "Bacteria",
-       y = "Concentration (mg/mL)") +
+       y = "Concentration (mg/mL)",
+       color = "Antibiotic") +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-
-  scale_fill_manual(values = c("penicillin" = "#FF6666", 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1),  
+        legend.position = "top") +
+  scale_color_manual(values = c("penicillin" = "#FF6666", 
                                "streptomycin" = "#66CC66", 
-                               "neomycin" = "#66CCFF"))
+                               "neomycin" = "#66CCFF")) +  
+  scale_y_log10(labels = scales::trans_format("log10", scales::math_format(10^.x))) +
+  geom_hline(yintercept = 0.1, linetype = "dashed", color = "black", size = 0.5) +  # Prominent MIC threshold line
+  stat_summary(fun = "mean", geom = "line", aes(group = antibiotic), 
+               color = "black", size = 0.5, linetype = "solid") +  
+  theme(axis.text.x = element_text(size = 10))
 ```
+
+    ## Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
+    ## ℹ Please use `linewidth` instead.
+    ## This warning is displayed once every 8 hours.
+    ## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+    ## generated.
 
 ![](c05-antibiotics-assignment_files/figure-gfm/q1.5-1.png)<!-- -->
 
@@ -367,18 +382,38 @@ your response here) - Which of your visuals above (1 through 5) is
 **most effective** at helping to answer this question? - (Write your
 response here) - Why? - (Write your response here)
 
-graph one lays out all the bacterias genera and their concentrations to
-the 3 types of antibiotics. Theyre all on the same scale to compare the
-values of each bacteria to the effective antibiotic amount. The bars are
-also seperate into a left and right positive and negative gram on the
-same scale to compare the antibiotic effectiveness with positive and
-negative.
+The effectiveness of the three antibiotics (penicillin, streptomycin,
+and neomycin) varies across different bacterial genera and Gram stain
+types. Specifically, penicillin and neomycin show lower MIC values
+against Gram-positive bacteria, indicating greater effectiveness.
+Streptomycin, however, tends to have higher MIC values for Gram-negative
+bacteria, making it less effective against those bacteria. On the other
+hand, neomycin demonstrates a high level of effectiveness against most
+Gram-positive bacteria in the dataset.
+
+Furthermore, the log-transformed MIC scale used in several of the
+visuals helps clearly highlight differences in antibiotic effectiveness,
+allowing for an immediate understanding of how the three antibiotics
+compare in terms of their potency across various bacteria. The threshold
+of MIC = 0.1 is a crucial marker to indicate whether the antibiotics are
+effective for treatment.
+
+Visual 1 utilizes a stacked bar chart to display the MIC values of all
+three antibiotics for each of the 16 bacteria, with a separate facet for
+Gram-positive and Gram-negative bacteria. This allows for easy
+comparison of antibiotic effectiveness across both bacterial types
+(Gram-positive vs. Gram-negative) and across the different antibiotics.
+The log-transformed MIC scale enhances clarity, showing both small and
+large values on the same scale, while the dashed line at MIC = 0.1
+clearly demarcates clinically relevant thresholds. The faceting ensures
+that we can directly observe how the antibiotics perform against
+different Gram stain types.
 
 #### Guiding Question 2
 
 In 1974 *Diplococcus pneumoniae* was renamed *Streptococcus pneumoniae*,
 and in 1984 *Streptococcus fecalis* was renamed *Enterococcus fecalis*
-$$2$$.
+\[2\].
 
 > Why was *Diplococcus pneumoniae* was renamed *Streptococcus
 > pneumoniae*?
@@ -388,19 +423,27 @@ your response here) - Which of your visuals above (1 through 5) is
 **most effective** at helping to answer this question? - (Write your
 response here) - Why? - (Write your response here)
 
-I think Graph 4 is the most helpful because it shows you how much in
-proportions are effective for how the antibiotics affect each bacteria.
-From this *Diplococcus pneumoniae from column 4 is nearly identical to
-Streptococcus hemolyticus. Then the same can be said for graph 2 but it
-is harder to tell as there is a lot more data to look at to compare the
-2 bacterias.*
+Visual 3, a heatmap, provides a clear overview of the bacterial
+sensitivity to each of the antibiotics. By focusing on the antibiotic
+sensitivity values across different genera, it can help in making
+inferences about how bacterial characteristics (e.g., genus and Gram
+stain) influence antibiotic resistance or sensitivity. While the heatmap
+itself doesn’t directly address the historical renaming, it does provide
+a visual clue regarding the distinct patterns of antibiotic
+effectiveness, which may have been a factor in distinguishing
+*Streptococcus pneumoniae* from other genera like *Diplococcus*. A
+comparison of MIC values between bacteria like *Streptococcus
+pneumoniae* and *Enterococcus fecalis* (previously *Streptococcus
+fecalis*) can give insights into why some bacteria have been
+reclassified, based on their shared and distinct responses to
+antibiotics.
 
 # References
 
 <!-- -------------------------------------------------- -->
 
-$$1$$ Neomycin in skin infections: A new topical antibiotic with wide
+\[1\] Neomycin in skin infections: A new topical antibiotic with wide
 antibacterial range and rarely sensitizing. Scope. 1951;3(5):4-7.
 
-$$2$$ Wainer and Lysen, “That’s Funny…” *American Scientist* (2009)
+\[2\] Wainer and Lysen, “That’s Funny…” *American Scientist* (2009)
 [link](https://www.americanscientist.org/article/thats-funny)
