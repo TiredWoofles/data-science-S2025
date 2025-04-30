@@ -405,7 +405,7 @@ fitting. So `T_norm ~ . - x` would fit on all columns *except* `x`.
 fit_q4 <- 
   df_train %>% 
   # lm(formula = T_norm ~ . - idx - avg_q - avg_T - rms_T)
-  lm(formula = T_norm ~ L + W + U_0 + N_p + k_f + T_f)
+  lm(formula = T_norm ~ . - idx - avg_q - avg_T - rms_T)
   # lm(formula = T_norm ~ L - W - U_0 - N_p - k_f - T_f)
 
 tidy(fit_q4) %>% 
@@ -427,12 +427,16 @@ summary(fit_q4)$coefficients %>%
   filter(`Pr(>|t|)` < 0.05)  # Significant if p-value < 0.05
 ```
 
-    ## # A tibble: 3 × 5
-    ##   predictor    Estimate `Std. Error` `t value`  `Pr(>|t|)`
-    ##   <chr>           <dbl>        <dbl>     <dbl>       <dbl>
-    ## 1 (Intercept)   4.88         0.834        5.86 0.000000126
-    ## 2 W           -44.4          8.03        -5.53 0.000000467
-    ## 3 T_f          -0.00478      0.00115     -4.15 0.0000874
+    ## # A tibble: 7 × 5
+    ##   predictor Estimate `Std. Error` `t value` `Pr(>|t|)`
+    ##   <chr>        <dbl>        <dbl>     <dbl>      <dbl>
+    ## 1 x          1.02e+0      5.61e-2     18.2    1.66e-26
+    ## 2 L          3.96e+0      9.36e-1      4.23   7.81e- 5
+    ## 3 W         -3.71e+1      6.39e+0     -5.81   2.33e- 7
+    ## 4 U_0       -3.26e-1      1.14e-1     -2.87   5.63e- 3
+    ## 5 C_fp      -6.59e-4      3.20e-4     -2.06   4.39e- 2
+    ## 6 d_p        1.24e+5      4.49e+4      2.75   7.76e- 3
+    ## 7 I_0        1.60e-7      4.29e-8      3.73   4.13e- 4
 
 ``` r
 df_psaap %>% 
@@ -449,46 +453,39 @@ df_psaap %>%
 - Which columns are excluded in the model formula above? What categories
   do these belong to? Why are these important quantities to leave out of
   the model?
-  - idx, avg_q, avg_T, rms_t and x are notably excluded. They are all
-    non-inputs (outputs, spatial and metadata). They are important to
-    leave out because they either are outputs that create circular
-    reasoning, or they’re factors that do not have a physical meaning.
+  - idx, avg_q, avg_T, rms_T are all removed from the mode. idx is
+    removed as it just an identifer for each obsercation. The other 3
+    are likley predictors that are highly correlated with other
+    variables in out data and so exclusion reduces multicollinarity.
 - Which inputs are *statistically significant*, according to the model?
-  - Intercept, W, and T_f are statistically significant according to the
-    model
+  - According to the mode x, L, W, U_0, C_fp, d_p and I_0 are all
+    statistically signficant.
 - What is the regression coefficient for `x`? What about the regression
   coefficient for `T_f`?
-  - x does not appear to have a regression coefficient. T_f’s regression
-    coefficient is -0.004783458.
+  - x = 1.0183
+  - T_f does not have one
 - What is the standard deviation of `x` in `df_psaap`? What about the
   standard deviation of `T_f`?
-  - The standard deviation of x is 0.2805121, and Tf is 38.94204
+  - standard devation of x is 0,2805 and the SD for T_f is 38.9420
 - How do these standard deviations relate to the regression coefficients
   for `x` and `T_f`?
-  - The standard deviations tell us their natural variability. The
-    regression coefficient tells us the effect per unit change. Their
-    practical effect can be measured by multiplying the SD by the
-    coefficient. While T_f has a high fluctuation, its coefficient
-    results in a low impact. On the other hand, x has no coefficient so
-    it would hypothetically be one. Comparing x, which has an impact of
-    0.28 units (1.0 x 0.28) to T_norm (-0.00478 \* 38.94) with an effect
-    of -0.186 units. x dominates the model.
+  - The effect of X is 1.0183 (x) x 0.2805 (SD of x) = 0.2855 or a
+    roughly 1SD in x leads to a 0.29 change increase in T_norm
+  - T_f was excluded so no regression coefficient was esimated. It has a
+    large SD of 28,94 which suggest it has a large amount of variation.
 - Note that literally *all* of the inputs above have *some* effect on
   the output `T_norm`; so they are all “significant” in that sense. What
   does this tell us about the limitations of statistical significance
   for interpreting regression coefficients?
-  - Statistical significance may not equal real-world importance. W, for
-    example, has a p \< 0.05 but only changes T_norm very little.
-    P-values only test to see if it has an effect not it’s size or
-    importance.
-  - Insignficant predictors like T_f and k_f may matter physically, but
-    in the data end up correlating with other variables and overlapping
-    their effects on the model
-  - Excluded variables like x may not be represented in the model but
-    dominate the system.
-  - SD and Regression coefficients depend on units and must be
-    considered together as with T_f with a low coefficient still has a
-    large impact due to its SD.
+  - statisitcal signiiance only tells us that an effect is liekly due to
+    change
+  - It does not tell us the practical importance of a predictors like
+    c_fp which is statistically significant but has a tiny effect
+  - A large coefficient may not be statistically signficiant if its
+    uncertainty is high
+  - The predictors here are all statistically significant shows that the
+    sample size may be large but does not mean the predictors are all
+    equally important or useful for using the model to make predictions
 
 ## Contrasting CI and PI
 
@@ -634,18 +631,17 @@ bind_rows(
 
 - Which model tends to be more accurate? How can you tell from this
   predicted-vs-actual plot?
-  - The predicted tends to be more accurate because, taking a look at
-    the dots with their confidence intervals, there are more that miss
-    the trend line on the actual plot.
+  - The left panel model seems to be more accurate as the values are
+    less scattered.
 - Which model tends to be *more confident* in its predictions? Put
   differently, which model has *narrower prediction intervals*?
-  - It seems that the actual one has more confidence in it’s predictions
-    as the predicted T-norm has less potential values it could be or
-    more narrow prediction intervals.
+  - the q4 only model is more confident as the vertical bars in the
+    right panel are consistnelty more narrow than those on the left.
+    This means that the x only has less uncertainty in its predictions
+    on new data.
 - How many predictors does the `fit_simple` model need in order to make
   a prediction? What about your model `fit_q4`?
-  - fit_simple needs just x intercepts while fit_q4 needs 6 ( L, W, U_0.
-    N_p, k_f, T_f)
+  - it would need 7 predictor of x L W U_0 c_fp d_p and I_0
 
 Based on these results, you might be tempted to always throw every
 reasonable variable into the model. For some cases, that might be the
@@ -708,23 +704,39 @@ pr_level <- 0.8
 #        make a recommendation on a *dependable range* of values for T_norm
 #        at the point `df_design`
 
-# Controllable/measurable variables + key physics
+## Fit a model with the key controllable variables
 fit_q6 <- lm(T_norm ~ x + L + W + U_0, data = df_train)
 
-# 80% prediction intervals (PI) for the design point
-df_design <- df_design %>% 
-  add_uncertainties(fit_q6, interval = "prediction", 
-                    level = pr_level, prefix = "pi")
+## Get prediction interval for the design point
+design_pred <- predict(fit_q6, newdata = df_design, 
+                      interval = "prediction", level = pr_level) %>% 
+  as_tibble() %>% 
+  rename(T_norm_pred = fit, pi_lwr = lwr, pi_upr = upr)
 
-# Calculate PI for validation data and check coverage
-df_validate <- df_validate %>%
-  add_uncertainties(fit_q6, interval = "prediction", 
-                    level = pr_level, prefix = "pi")
+## Check coverage on validation data
+validation_pred <- predict(fit_q6, newdata = df_validate, 
+                          interval = "prediction", level = pr_level) %>% 
+  as_tibble() %>% 
+  rename(T_norm_pred = fit, pi_lwr = lwr, pi_upr = upr) %>% 
+  bind_cols(df_validate %>% select(T_norm))
 
-# Fraction of validation points within PI
-coverage <- mean(df_validate$T_norm >= df_validate$pi_lwr & 
-                 df_validate$T_norm <= df_validate$pi_upr)
+# Calculate coverage rate
+coverage_rate <- mean(validation_pred$T_norm >= validation_pred$pi_lwr & 
+                      validation_pred$T_norm <= validation_pred$pi_upr)
+
+design_pred
 ```
+
+    ## # A tibble: 1 × 3
+    ##   T_norm_pred pi_lwr pi_upr
+    ##         <dbl>  <dbl>  <dbl>
+    ## 1        1.88   1.46   2.30
+
+``` r
+coverage_rate
+```
+
+    ## [1] 0.9333333
 
 **Recommendation**:
 
@@ -746,10 +758,14 @@ coverage <- mean(df_validate$T_norm >= df_validate$pi_lwr &
   around?
   - they should design around x = 1, L = 0.2, W = 0.04, U_0 = 1.0, that
     we were given as it is likely that this model covers more than the
-    required amount (80%) of values to account for.
+    required amount (80%) of values to account for. This means a T_norm
+    value between 1.45685 and 2.296426
 - Are there any other recommendations you would provide?
-  - I would suggest using a lower PI value so that the model can be less
-    conservative and cover closer to 80% as the goal.
+  - Keep the current 80% prediction interval (PI): The model’s coverage
+    of 93.3% is beneficial, as it provides a more conservative and safer
+    range for T_norm, which is crucial for avoiding potential damage to
+    equipment. It’s better to overestimate uncertainty than to risk
+    missing critical variations.
 
 *Bonus*: One way you could take this analysis further is to recommend
 which other variables the design team should tightly control. You could
