@@ -677,7 +677,8 @@ include in your summaries,* and justify why!
 df_clean <- df_normalized %>%
   filter(
     !is.na(population) & !is.na(cases) & !is.na(deaths),  # Remove NAs
-    is.numeric(population) & is.numeric(cases) & is.numeric(deaths)  # Check if columns are numeric
+    is.numeric(population) & is.numeric(cases) & is.numeric(deaths),  # Ensure numeric columns
+    date == "2022-05-01"
   )
 
 # Compute mean and standard deviation for cases_per100k
@@ -687,15 +688,36 @@ sd_cases_per100k <- sd(df_clean$cases_per100k, na.rm = TRUE)
 # Compute mean and standard deviation for deaths_per100k
 mean_deaths_per100k <- mean(df_clean$deaths_per100k, na.rm = TRUE)
 sd_deaths_per100k <- sd(df_clean$deaths_per100k, na.rm = TRUE)
+
+# Print results
+mean_cases_per100k
 ```
 
+    ## [1] 24798.87
+
+``` r
+sd_cases_per100k
+```
+
+    ## [1] 6079.569
+
+``` r
+mean_deaths_per100k
+```
+
+    ## [1] 372.4562
+
+``` r
+sd_deaths_per100k
+```
+
+    ## [1] 159.4195
+
 - Which rows did you pick?
-  - I removed rows where there was no data.
+  - I chose 5/1/22
 - Why?
-  - I removed these rows as to not include them when needing to divide
-    by the number of data points for the average. They should be removed
-    because otherwise their values are impacting the data without adding
-    to the data set with additional populations and cases,.
+  - This was a meaningful day as it was when there was a widespread
+    amount of cases and where there was spikes
 
 ### **q7** Find and compare the top 10
 
@@ -706,56 +728,99 @@ you found in q6. Note any observations.
 
 ``` r
 ## TASK: Find the top 10 max cases_per100k counties; report populations as well
-# Sort by cases_per100k and select the top 10 counties
+# Summarize data to get the maximum cases and deaths per county
 top_10_cases <- df_clean %>%
-  arrange(desc(cases_per100k)) %>%                    # Sort by cases_per100k
-  head(10)                                            # Select top 10
-                                            
-## TASK: Find the top 10 deaths_per100k counties; report populations as well
-# Sort by deaths_per100k and select the top 10 counties
-top_10_deaths <- df_clean %>%
-  arrange(desc(deaths_per100k)) %>%                    # Sort by deaths_per100k
-  head(10)
+  group_by(county, state) %>%  # Group by county and state
+  summarize(
+    max_cases_per100k = max(cases_per100k, na.rm = TRUE),  # Max cases per 100k
+    max_deaths_per100k = max(deaths_per100k, na.rm = TRUE),  # Max deaths per 100k
+    population = max(population, na.rm = TRUE)  # Get population of the county
+  ) %>%
+  arrange(desc(max_cases_per100k)) %>%  # Sort by max cases per 100k
+  head(10)  # Select top 10 counties by cases per 100k
+```
 
+    ## `summarise()` has grouped output by 'county'. You can override using the
+    ## `.groups` argument.
+
+``` r
+top_10_deaths <- df_clean %>%
+  group_by(county, state) %>%
+  summarize(
+    max_cases_per100k = max(cases_per100k, na.rm = TRUE),  # Max cases per 100k
+    max_deaths_per100k = max(deaths_per100k, na.rm = TRUE),  # Max deaths per 100k
+    population = max(population, na.rm = TRUE)  # Get population of the county
+  ) %>%
+  arrange(desc(max_deaths_per100k)) %>%  # Sort by max deaths per 100k
+  head(10)  # Select top 10 counties by deaths per 100k
+```
+
+    ## `summarise()` has grouped output by 'county'. You can override using the
+    ## `.groups` argument.
+
+``` r
 top_10_cases
 ```
 
-    ## # A tibble: 10 × 9
-    ##    date       county state fips  cases deaths population cases_per100k
-    ##    <date>     <chr>  <chr> <chr> <int>  <int>      <int>         <dbl>
-    ##  1 2022-05-12 Loving Texas 48301   196      1        102       192157.
-    ##  2 2022-05-13 Loving Texas 48301   196      1        102       192157.
-    ##  3 2022-05-09 Loving Texas 48301   195      1        102       191176.
-    ##  4 2022-05-10 Loving Texas 48301   195      1        102       191176.
-    ##  5 2022-05-11 Loving Texas 48301   195      1        102       191176.
-    ##  6 2022-05-08 Loving Texas 48301   194      1        102       190196.
-    ##  7 2022-05-07 Loving Texas 48301   192      1        102       188235.
-    ##  8 2022-05-05 Loving Texas 48301   191      1        102       187255.
-    ##  9 2022-05-06 Loving Texas 48301   191      1        102       187255.
-    ## 10 2022-05-04 Loving Texas 48301   190      1        102       186275.
-    ## # ℹ 1 more variable: deaths_per100k <dbl>
+    ## # A tibble: 10 × 5
+    ## # Groups:   county [10]
+    ##    county                  state max_cases_per100k max_deaths_per100k population
+    ##    <chr>                   <chr>             <dbl>              <dbl>      <int>
+    ##  1 Loving                  Texas           182353.              980.         102
+    ##  2 Chattahoochee           Geor…            69397.              204.       10767
+    ##  3 Nome Census Area        Alas…            62620.               50.4       9925
+    ##  4 Northwest Arctic Borou… Alas…            61314.              168.        7734
+    ##  5 Crowley                 Colo…            59290.              515.        5630
+    ##  6 Bethel Census Area      Alas…            56608.              227.       18040
+    ##  7 Dewey                   Sout…            54265.              761.        5779
+    ##  8 Dimmit                  Texas            53981.              478.       10663
+    ##  9 Jim Hogg                Texas            49849.              417.        5282
+    ## 10 Kusilvak Census Area    Alas…            49573.              146.        8198
 
 ``` r
-# checkcases <- df_clean %>%
-#   arrange(desc(cases_per100k))
-#           
-# checkdeaths <- df_clean %>%
-#   arrange(desc(cases_per100k))
+top_10_deaths
 ```
+
+    ## # A tibble: 10 × 5
+    ## # Groups:   county [10]
+    ##    county            state       max_cases_per100k max_deaths_per100k population
+    ##    <chr>             <chr>                   <dbl>              <dbl>      <int>
+    ##  1 McMullen          Texas                  25529.              1360.        662
+    ##  2 Galax city        Virginia               38430.              1175.       6638
+    ##  3 Motley            Texas                  24740.              1125.       1156
+    ##  4 Hancock           Georgia                18535.              1054.       8535
+    ##  5 Emporia city      Virginia               21910.              1022.       5381
+    ##  6 Towns             Georgia                20986.              1016.      11417
+    ##  7 Jerauld           South Dako…            20453.               986.       2029
+    ##  8 Loving            Texas                 182353.               980.        102
+    ##  9 Robertson         Kentucky               30938.               980.       2143
+    ## 10 Martinsville city Virginia               26250.               939.      13101
 
 **Observations**:
 
 - (Note your observations here!)
-  - All 10 top deaths go to McMullen, Texas.
+  - The top 10 counties by cases per 100K and top 10 by deaths per 100k
+    were identified based on data from May 1, 2022. This means the
+    “largest values” occurred on that specific date, as filtered in the
+    dataset. The mean cases per 100K across all counties on that date
+    was mean cases per 100K, with a standard deviation of sd cases per
+    100K . The top counties had case rates far above this mean and in
+    some instances, over two standard deviations higher, indicating
+    localized surges or anomalies.
 
-  - All 10 top cases are Loving, Texas
-
-  - The cases, deaths, cases per 100k and deaths per 100 values were all
-    really close to each other within
+    Similarly, the meam deahts per 100K was mean deaths per 100K with a
+    standard deviation of SD of deaths per 100K. The top 10 counties for
+    deaths also greatly exceeded the mean, which suggests either
+    disproportionately high mortality in these areas or smaller
+    populations inflating per-capita rates.
 - When did these “largest values” occur?
-  - For cases, they all happened within the first two weeks of May, 2022
-  - For deaths, they all happened within the last two weeks of February,
-    2022
+  - Counties with smaller populations were overrepresented in the top 10
+    for both cases and deaths per 100k. This is expected, as a small
+    number of cases or deaths can produce very high per-capita rates in
+    low-population areas.
+
+    There was little overlap between counties with the highest case
+    rates and those with the highest death rates.
 
 ## Self-directed EDA
 
@@ -778,21 +843,40 @@ top_10_cases
 **DO YOUR OWN ANALYSIS HERE**
 
 ``` r
-ggplot(df_clean, aes(x = population, y = cases_per100k)) +
-  geom_point() +  # Scatter plot to show the relationship between population and cases_per100k
-  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Linear regression line
-  scale_x_log10() +  # Log scale for population (x-axis)
+df_plot <- df_clean %>%
+  filter(date == "2022-05-01")
+
+# Create the plot
+ggplot(df_plot, aes(x = population, y = cases_per100k)) +
+  geom_point(alpha = 0.6) +  # Slight transparency to reduce overlap
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Regression line
+  scale_x_log10() +  # Log scale for x-axis
+  scale_y_log10() +  # Log scale for y-axis (was missing before)
   theme_minimal() +
   labs(
-    x = "Population (log scale)",  # Modify x-axis label to indicate log scale
-    y = "Cases per 100,000 persons (log scale)",  # Modify y-axis label to indicate log scale
-    title = "Log-Log Scale Comparison of Population and Cases per 100,000"
+    x = "Population (log scale)",
+    y = "Cases per 100,000 persons (log scale)",
+    title = "Log-Log Comparison Population vs Cases per 100K (May 1, 2022)"
   )
 ```
 
     ## `geom_smooth()` using formula = 'y ~ x'
 
 ![](c06-covid19-assignment_files/figure-gfm/unnamed-chunk-1-1.png)<!-- -->
+
+1.    
+    The blue regression line is nearly flat, suggesting very little to
+    no correlation between a county’s population size and its COVID-19
+    case rate per 100,000 people.
+
+    Even counties with similar population sizes show substantial
+    variation in cases per 100k indicating other factors than
+    populat,ion size affect cases
+
+    On the left side of the x-axis (smaller populations), we see
+    slightly more vertical dispersion. This is likely due to rate
+    inflation in smaller populations where a small number of cases can
+    produce disproportionately large per-100k values
 
 ### Aside: Some visualization tricks
 

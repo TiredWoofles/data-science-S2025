@@ -24,7 +24,7 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 <!-- ------------------------- -->
 
 | Category | Needs Improvement | Satisfactory |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Effort | Some task **q**'s left unattempted | All task **q**'s attempted |
 | Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
 | Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
@@ -40,7 +40,6 @@ Make sure to commit both the challenge report (`report.md` file) and supporting 
 
 ```{r setup}
 library(tidyverse)
-
 ```
 
 *Background*: [COVID-19](https://en.wikipedia.org/wiki/Coronavirus_disease_2019) is the disease caused by the virus SARS-CoV-2. In 2020 it became a global pandemic, leading to huge loss of life and tremendous disruption to society. The New York Times (as of writing) publishes up-to-date data on the progression of the pandemic across the United States---we will study these data in this challenge.
@@ -355,7 +354,8 @@ Compute the mean and standard deviation for `cases_per100k` and `deaths_per100k`
 df_clean <- df_normalized %>%
   filter(
     !is.na(population) & !is.na(cases) & !is.na(deaths),  # Remove NAs
-    is.numeric(population) & is.numeric(cases) & is.numeric(deaths)  # Check if columns are numeric
+    is.numeric(population) & is.numeric(cases) & is.numeric(deaths),  # Ensure numeric columns
+    date == "2022-05-01"
   )
 
 # Compute mean and standard deviation for cases_per100k
@@ -365,12 +365,18 @@ sd_cases_per100k <- sd(df_clean$cases_per100k, na.rm = TRUE)
 # Compute mean and standard deviation for deaths_per100k
 mean_deaths_per100k <- mean(df_clean$deaths_per100k, na.rm = TRUE)
 sd_deaths_per100k <- sd(df_clean$deaths_per100k, na.rm = TRUE)
+
+# Print results
+mean_cases_per100k
+sd_cases_per100k
+mean_deaths_per100k
+sd_deaths_per100k
 ```
 
 -   Which rows did you pick?
-    -   I removed rows where there was no data.
+    -   I chose 5/1/22
 -   Why?
-    -   I removed these rows as to not include them when needing to divide by the number of data points for the average. They should be removed because otherwise their values are impacting the data without adding to the data set with additional populations and cases,.
+    -   This was a meaningful day as it was when there was a widespread amount of cases and where there was spikes
 
 ### **q7** Find and compare the top 10
 
@@ -378,36 +384,42 @@ Find the top 10 counties in terms of `cases_per100k`, and the top 10 in terms of
 
 ```{r q7-task}
 ## TASK: Find the top 10 max cases_per100k counties; report populations as well
-# Sort by cases_per100k and select the top 10 counties
+# Summarize data to get the maximum cases and deaths per county
 top_10_cases <- df_clean %>%
-  arrange(desc(cases_per100k)) %>%                    # Sort by cases_per100k
-  head(10)                                            # Select top 10
-                                            
-## TASK: Find the top 10 deaths_per100k counties; report populations as well
-# Sort by deaths_per100k and select the top 10 counties
+  group_by(county, state) %>%  # Group by county and state
+  summarize(
+    max_cases_per100k = max(cases_per100k, na.rm = TRUE),  # Max cases per 100k
+    max_deaths_per100k = max(deaths_per100k, na.rm = TRUE),  # Max deaths per 100k
+    population = max(population, na.rm = TRUE)  # Get population of the county
+  ) %>%
+  arrange(desc(max_cases_per100k)) %>%  # Sort by max cases per 100k
+  head(10)  # Select top 10 counties by cases per 100k
+
 top_10_deaths <- df_clean %>%
-  arrange(desc(deaths_per100k)) %>%                    # Sort by deaths_per100k
-  head(10)
+  group_by(county, state) %>%
+  summarize(
+    max_cases_per100k = max(cases_per100k, na.rm = TRUE),  # Max cases per 100k
+    max_deaths_per100k = max(deaths_per100k, na.rm = TRUE),  # Max deaths per 100k
+    population = max(population, na.rm = TRUE)  # Get population of the county
+  ) %>%
+  arrange(desc(max_deaths_per100k)) %>%  # Sort by max deaths per 100k
+  head(10)  # Select top 10 counties by deaths per 100k
 
 top_10_cases
-# checkcases <- df_clean %>%
-#   arrange(desc(cases_per100k))
-#           
-# checkdeaths <- df_clean %>%
-#   arrange(desc(cases_per100k))
+top_10_deaths
+
 ```
 
 **Observations**:
 
 -   (Note your observations here!)
-    -   All 10 top deaths go to McMullen, Texas.
+    -   The top 10 counties by cases per 100K and top 10 by deaths per 100k were identified based on data from May 1, 2022. This means the "largest values" occurred on that specific date, as filtered in the dataset. The mean cases per 100K across all counties on that date was mean cases per 100K, with a standard deviation of sd cases per 100K . The top counties had case rates far above this mean and in some instances, over two standard deviations higher, indicating localized surges or anomalies.
 
-    -   All 10 top cases are Loving, Texas
-
-    -   The cases, deaths, cases per 100k and deaths per 100 values were all really close to each other within
+        Similarly, the meam deahts per 100K was mean deaths per 100K with a standard deviation of SD of deaths per 100K. The top 10 counties for deaths also greatly exceeded the mean, which suggests either disproportionately high mortality in these areas or smaller populations inflating per-capita rates.
 -   When did these "largest values" occur?
-    -   For cases, they all happened within the first two weeks of May, 2022
-    -   For deaths, they all happened within the last two weeks of February, 2022
+    -   Counties with smaller populations were overrepresented in the top 10 for both cases and deaths per 100k. This is expected, as a small number of cases or deaths can produce very high per-capita rates in low-population areas.
+
+        There was little overlap between counties with the highest case rates and those with the highest death rates.
 
 ## Self-directed EDA
 
@@ -429,17 +441,29 @@ top_10_cases
 **DO YOUR OWN ANALYSIS HERE**
 
 ```{r}
-ggplot(df_clean, aes(x = population, y = cases_per100k)) +
-  geom_point() +  # Scatter plot to show the relationship between population and cases_per100k
-  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Linear regression line
-  scale_x_log10() +  # Log scale for population (x-axis)
+df_plot <- df_clean %>%
+  filter(date == "2022-05-01")
+
+# Create the plot
+ggplot(df_plot, aes(x = population, y = cases_per100k)) +
+  geom_point(alpha = 0.6) +  # Slight transparency to reduce overlap
+  geom_smooth(method = "lm", se = FALSE, color = "blue") +  # Regression line
+  scale_x_log10() +  # Log scale for x-axis
+  scale_y_log10() +  # Log scale for y-axis (was missing before)
   theme_minimal() +
   labs(
-    x = "Population (log scale)",  # Modify x-axis label to indicate log scale
-    y = "Cases per 100,000 persons (log scale)",  # Modify y-axis label to indicate log scale
-    title = "Log-Log Scale Comparison of Population and Cases per 100,000"
+    x = "Population (log scale)",
+    y = "Cases per 100,000 persons (log scale)",
+    title = "Log-Log Comparison Population vs Cases per 100K (May 1, 2022)"
   )
 ```
+
+1.  \
+    The blue regression line is nearly flat, suggesting very little to no correlation between a county’s population size and its COVID-19 case rate per 100,000 people.
+
+    Even counties with similar population sizes show substantial variation in cases per 100k indicating other factors than populat,ion size affect cases
+
+    On the left side of the x-axis (smaller populations), we see slightly more vertical dispersion. This is likely due to rate inflation in smaller populations where a small number of cases can produce disproportionately large per-100k values
 
 ### Aside: Some visualization tricks
 
