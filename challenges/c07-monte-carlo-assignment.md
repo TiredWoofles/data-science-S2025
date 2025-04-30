@@ -60,6 +60,7 @@ a link to Canvas. **Your Challenge submission is not complete without
 all files uploaded to GitHub.**
 
 ``` r
+set.seed(101)
 library(tidyverse)
 ```
 
@@ -324,7 +325,7 @@ df_q3
     ## # A tibble: 1 × 1
     ##   pi_est
     ##    <dbl>
-    ## 1   3.13
+    ## 1   3.14
 
 Use the following to check that you’ve used the correct variable names.
 (NB. This does not check correctness.)
@@ -401,11 +402,23 @@ df_q4 %>%
 
 ![](c07-monte-carlo-assignment_files/figure-gfm/q4-task-1.png)<!-- -->
 
+``` r
+min(df_q4$pi_est)
+```
+
+    ## [1] 3.0832
+
+``` r
+max(df_q4$pi_est)
+```
+
+    ## [1] 3.1912
+
 *Observations*
 
 - What is a range of plausible values, based on the sampling
   distribution you’ve generated?
-  - 3.0875 to 3.195 are the values I have in my range
+  - 3.0856 to 3.1884 are the values I have in my range
 
 ### **q5** Bootstrap percentile confidence interval
 
@@ -431,7 +444,25 @@ df_q5
     ## # A tibble: 1 × 2
     ##   pi_lo pi_up
     ##   <dbl> <dbl>
-    ## 1  3.10  3.16
+    ## 1  3.11  3.17
+
+``` r
+df_q6 <- 
+  df_q1 %>% 
+  mutate(inside = stat(x, y)) %>% 
+  summarize(
+    pi_est = mean(inside),
+    se = sd(inside) / sqrt(n),
+    pi_lo = pi_est - qnorm(0.975) * se,
+    pi_up = pi_est + qnorm(0.975) * se
+  )
+df_q6
+```
+
+    ## # A tibble: 1 × 4
+    ##   pi_est     se pi_lo pi_up
+    ##    <dbl>  <dbl> <dbl> <dbl>
+    ## 1   3.14 0.0164  3.11  3.17
 
 ### **q6** CLT confidence interval
 
@@ -462,7 +493,7 @@ df_q6
     ## # A tibble: 1 × 4
     ##   pi_est     se pi_lo pi_up
     ##    <dbl>  <dbl> <dbl> <dbl>
-    ## 1   3.13 0.0165  3.10  3.16
+    ## 1   3.14 0.0164  3.11  3.17
 
 **Observations**:
 

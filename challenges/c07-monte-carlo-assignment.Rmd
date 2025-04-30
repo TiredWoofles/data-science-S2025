@@ -24,7 +24,7 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 <!-- ------------------------- -->
 
 | Category | Needs Improvement | Satisfactory |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Effort | Some task **q**'s left unattempted | All task **q**'s attempted |
 | Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
 | Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
@@ -39,6 +39,7 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 Make sure to commit both the challenge report (`report.md` file) and supporting files (`report_files/` folder) when you are done! Then submit a link to Canvas. **Your Challenge submission is not complete without all files uploaded to GitHub.**
 
 ```{r setup}
+set.seed(101)
 library(tidyverse)
 library(rsample)
 ```
@@ -260,12 +261,15 @@ df_q4 <-
 df_q4 %>% 
   ggplot(aes(pi_est)) +
   geom_histogram()
+
+min(df_q4$pi_est)
+max(df_q4$pi_est)
 ```
 
 *Observations*
 
 -   What is a range of plausible values, based on the sampling distribution you've generated?
-    -   3.0875 to 3.195 are the values I have in my range
+    -   3.0856 to 3.1884 are the values I have in my range
 
 ### **q5** Bootstrap percentile confidence interval
 
@@ -284,6 +288,17 @@ df_q5 <-
   )
 
 df_q5
+
+df_q6 <- 
+  df_q1 %>% 
+  mutate(inside = stat(x, y)) %>% 
+  summarize(
+    pi_est = mean(inside),
+    se = sd(inside) / sqrt(n),
+    pi_lo = pi_est - qnorm(0.975) * se,
+    pi_up = pi_est + qnorm(0.975) * se
+  )
+df_q6
 ```
 
 ### **q6** CLT confidence interval
