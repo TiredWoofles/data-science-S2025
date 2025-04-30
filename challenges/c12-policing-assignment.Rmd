@@ -234,9 +234,9 @@ fit_q6 %>% tidy()
 **Observations**:
 
 -   Which `subject_race` levels are included in fitting the model?
-    -   Hispanic, White
+    -   Hispanic, White and Black are included
 -   Which `subject_race` levels have terms in the model?
-    -   Hispanic, White and Black. The other two are being compared to Black.
+    -   Hispanic, White are have terms as Black is for reference.
 
 You should find that each factor in the model has a level *missing* in its set of terms. This is because R represents factors against a *reference level*: The model treats one factor level as "default", and each factor model term represents a change from that "default" behavior. For instance, the model above treats `subject_sex==male` as the reference level, so the `subject_sexfemale` term represents the *change in probability* of arrest due to a person being female (rather than male).
 
