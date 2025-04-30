@@ -243,8 +243,12 @@ print("Very good!")
   - Sorensen is the most prevalent.
 - Is this sample representative of *all* houses in Helvig? Why or why
   not?
-  - No, because people living in the same house may have different last
-    names or last names are the same in different houses.
+  - No, because the sample is based on sequential sampling, meaning
+    houses are sampled in a sequence, likely in geographical proximity.
+    As a result, certain groups that tend to live farther apart (e.g.,
+    wealthy people often live in separate areas from others) may not be
+    included in the sample. This sampling method might not capture the
+    diversity of the entire population.
 
 In the exercises, we talked about the importance of random sampling. In
 the previous challenge, we were able to *simulate* a random sample by
