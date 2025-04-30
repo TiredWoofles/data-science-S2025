@@ -562,12 +562,15 @@ ggplot(df_data, aes(x = population_estimate, y = income_SE)) +
 
 - What *overall* trend do you see between `SE` and population? Why might
   this trend exist?
-  - As the population increases, the standard error of median income
-    decreases. This trend may exist because there are far more
-    populations in lower ranges than high ranges and because there are
-    more people it tends to be more stable of income compared to smaller
-    populations where a single preson has a stronger pull on the median
-    income.
+  - As the population increases, the standard error (SE) of median
+    income decreases. This trend exists because, when the population
+    size increases, a sample that is proportional to the population (for
+    example, about 10%) will also be larger. Larger sample sizes lead to
+    more stable estimates of the median income, reducing the variability
+    in the sample and thus lowering the standard error. In smaller
+    populations, where a proportionally smaller sample is taken,
+    individual data points have a larger effect on the estimate,
+    increasing the standard error.
 - What does this *overall* trend tell you about the relative ease of
   studying small vs large counties?
   - It’s harder to study smaller counties as they have a greater amount
