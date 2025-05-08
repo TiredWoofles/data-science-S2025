@@ -26,7 +26,7 @@ Unlike exercises, **challenges will be graded**. The following rubrics define ho
 <!-- ------------------------- -->
 
 | Category | Needs Improvement | Satisfactory |
-|----|----|----|
+|------------------------|------------------------|------------------------|
 | Effort | Some task **q**'s left unattempted | All task **q**'s attempted |
 | Observed | Did not document observations, or observations incorrect | Documented correct observations based on analysis |
 | Supported | Some observations not clearly supported by analysis | All observations clearly supported by analysis (table, graph, etc.) |
@@ -141,7 +141,6 @@ ggplot(df_prop_survived, aes(x = Class, y = Prop, fill = Sex)) +
   labs(title = "Proportion of Survivors by Class and Sex", 
        x = "Class", 
        y = "Proportion of Group that Survived")
-
 ```
 
 **Observations**:
@@ -187,9 +186,10 @@ ggplot(df_prop2, aes(x = Class, y = Prop, fill = Sex)) +
 **Observations**:
 
 -   (Write your observations here.)
+    -   
 -   If you saw something *fishy* in q4 above, use your new plot to explain the fishy-ness.
     -   (Your response here)
-    -   My new plot is odd because it shows that the way I am calculating for the proprtions, of all the male 2nd class 100% survivors are children and 8.33% are adults. This makes no sense because my total should add up to 100% as for the way I am calculating proportion from the total n.
+    -   The fishyness between the two graphs would be that in Q4 it appears that the survival rate of 1st and 2nd class is 100% when that simply is not the case. The data shows that while all the 1st and 2nd class children survived, there were at least 200 combined 1st and 2nd class men who did not. And about 20 1st and 2nd class women who did not.
 
 # Notes
 
